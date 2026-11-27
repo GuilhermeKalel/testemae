@@ -1,0 +1,2448 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Valeska Studio IA — Criador de Ofertas</title>
+
+  <!-- Google Fonts: Dancing Script (Logotipo) e Plus Jakarta Sans (Interface e Preços) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            valeska: {
+              bg: '#FFF5F9',
+              pastel: '#FDE4EE',
+              berry: '#9B1D56',
+              berryDark: '#7A1242',
+              pink: '#F284B6',
+              sage: '#95BD99',
+              sageDark: '#6A9670',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            script: ['"Dancing Script"', 'cursive'],
+          },
+          boxShadow: {
+            'rose': '0 10px 30px -8px rgba(155, 29, 86, 0.14)',
+            'rose-lg': '0 18px 40px -12px rgba(155, 29, 86, 0.22)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos complementares para animações suaves, barra de rolagem e polimento visual */
+    body {
+      background-color: #FFF5F9;
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(253, 228, 238, 0.9) 0%, transparent 45%),
+        radial-gradient(circle at 100% 10%, rgba(149, 189, 153, 0.18) 0%, transparent 35%),
+        radial-gradient(circle at 100% 100%, rgba(242, 132, 182, 0.18) 0%, transparent 40%);
+      background-attachment: fixed;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Animação de pulso suave para o carregamento da IA */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-float {
+      animation: floatSlow 2.6s ease-in-out infinite;
+    }
+
+    @keyframes shimmerBar {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(220%); }
+    }
+    .shimmer-bar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent);
+      animation: shimmerBar 1.5s infinite;
+    }
+
+    /* Switch estilizado */
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #9B1D56;
+    }
+    .toggle-checkbox:checked + .toggle-label .toggle-dot {
+      transform: translateX(1.25rem);
+    }
+
+    /* Esconder scrollbar mantendo rolagem fluida em listas horizontais */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="font-sans text-[#4A1C32] min-h-screen flex flex-col selection:bg-valeska-pink/30 selection:text-valeska-berryDark">
+
+  <!-- Toast de Notificações (Substitui alert/confirm) -->
+  <div id="toast-container" class="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Cabeçalho com Identidade Visual Oficial da Valeska -->
+  <header class="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-valeska-pastel shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+      <!-- Logotipo SVG Inspirado na Caixinha de Presente da Loja -->
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-valeska-pastel/70 border border-valeska-pink/40 flex items-center justify-center shadow-sm shrink-0">
+          <svg viewBox="0 0 80 80" class="w-11 h-11 sm:w-12 sm:h-12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo Valeska Perfumes e Mimos">
+            <!-- Laço em formato de coração estilizado no topo -->
+            <path d="M40 27 C33 14, 19 16, 24 26 C27 31, 35 30, 40 28 C45 30, 53 31, 56 26 C61 16, 47 14, 40 27 Z" stroke="#9B1D56" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="#FDE4EE"/>
+            <!-- Fitas soltas do laço -->
+            <path d="M35 28 C30 33, 27 36, 25 38" stroke="#9B1D56" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M45 28 C50 33, 53 36, 55 38" stroke="#9B1D56" stroke-width="2.4" stroke-linecap="round"/>
+            <!-- Tampa esquerda (Magenta) -->
+            <rect x="17" y="32" width="16" height="12" rx="3" transform="rotate(-7 17 32)" fill="#9B1D56"/>
+            <!-- Tampa direita (Rosa Médio) -->
+            <rect x="47" y="30" width="16" height="12" rx="3" transform="rotate(7 47 30)" fill="#F284B6"/>
+            <!-- Fita central vertical (Verde Sálvia) -->
+            <rect x="34" y="29" width="12" height="36" rx="3" fill="#95BD99"/>
+            <!-- Base esquerda (Verde Sálvia) -->
+            <rect x="20" y="47" width="13" height="17" rx="3" transform="rotate(-4 20 47)" fill="#95BD99"/>
+            <!-- Base direita (Rosa Médio / Magenta) -->
+            <rect x="47" y="46" width="13" height="17" rx="3" transform="rotate(4 47 46)" fill="#9B1D56"/>
+            <!-- Brilho delicado -->
+            <circle cx="62" cy="22" r="2.2" fill="#95BD99"/>
+            <circle cx="16" cy="24" r="1.8" fill="#F284B6"/>
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="flex items-baseline gap-2">
+            <h1 class="font-script text-3xl sm:text-4xl text-valeska-berry leading-none tracking-tight">Valeska</h1>
+            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-valeska-pastel text-valeska-berry border border-valeska-pink/40">
+              Studio IA
+            </span>
+          </div>
+          <p class="text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-valeska-berryDark/80 uppercase mt-0.5">
+            Perfumes &amp; Mimos
+          </p>
+        </div>
+      </div>
+
+      <!-- Ações Rápidas do Header -->
+      <div class="flex items-center gap-2">
+        <a href="#galeria-secao" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-valeska-pastel/80 hover:bg-valeska-pastel text-valeska-berryDark text-xs sm:text-sm font-semibold transition">
+          <svg class="w-4 h-4 text-valeska-berry" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span class="hidden sm:inline">Artes de Hoje</span>
+          <span id="gallery-count-badge" class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-valeska-berry text-white text-[11px] font-bold">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 sm:py-8">
+
+    <!-- Faixa de Boas-Vindas Compacta -->
+    <div class="mb-6 bg-white/90 rounded-3xl p-4 sm:p-5 border border-valeska-pastel shadow-rose flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative overflow-hidden">
+      <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-valeska-sage/20 pointer-events-none"></div>
+      <div class="absolute right-12 -bottom-10 w-24 h-24 rounded-full bg-valeska-pink/20 pointer-events-none"></div>
+      <div class="relative z-10">
+        <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-valeska-sageDark bg-valeska-sage/20 px-3 py-1 rounded-full mb-1.5">
+          <span class="w-2 h-2 rounded-full bg-valeska-sageDark"></span>
+          Criador de Ofertas com Inteligência Artificial
+        </span>
+        <h2 class="text-lg sm:text-xl font-extrabold text-valeska-berryDark">
+          Transforme fotos simples em artes incríveis em segundos ✨
+        </h2>
+        <p class="text-xs sm:text-sm text-[#78465E] mt-0.5">
+          Envie a foto do produto, coloque os preços e deixe a IA criar o cenário de estúdio com a cara da loja.
+        </p>
+      </div>
+      <button type="button" id="btn-fill-demo" class="relative z-10 shrink-0 self-start sm:self-center px-3.5 py-2 rounded-xl border border-valeska-pink/60 bg-valeska-bg hover:bg-valeska-pastel text-valeska-berry text-xs font-bold transition cursor-pointer">
+        Preencher exemplo (Malbec)
+      </button>
+    </div>
+
+    <!-- Grade Principal: 2 Colunas no Desktop / 1 Coluna Fluida no Celular -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+
+      <!-- COLUNA ESQUERDA: Formulário Intuitivo -->
+      <section class="lg:col-span-5 flex flex-col gap-5">
+
+        <!-- CARD 1: Upload da Foto do Produto -->
+        <div class="bg-white rounded-3xl p-5 border border-valeska-pastel shadow-rose">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-extrabold text-valeska-berryDark flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-valeska-berry text-white text-xs flex items-center justify-center font-bold">1</span>
+              Foto do Produto
+            </h3>
+            <span id="photo-status-pill" class="text-[11px] font-semibold text-[#8A5A70] bg-valeska-bg px-2.5 py-1 rounded-full border border-valeska-pastel">
+              Obrigatória
+            </span>
+          </div>
+
+          <!-- Zona de Arrastar e Soltar -->
+          <div id="dropzone" class="relative rounded-2xl border-2 border-dashed border-valeska-pink/70 bg-valeska-bg/70 hover:bg-valeska-pastel/40 transition p-5 text-center cursor-pointer group">
+            <input type="file" id="file-input" accept="image/*" class="hidden" />
+            <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" />
+
+            <!-- Estado Vazio -->
+            <div id="upload-empty-state" class="flex flex-col items-center py-2">
+              <div class="w-14 h-14 rounded-2xl bg-white shadow-sm border border-valeska-pastel flex items-center justify-center text-valeska-berry mb-3 group-hover:scale-105 transition">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <p class="text-sm font-bold text-valeska-berryDark">Toque para enviar a foto do produto</p>
+              <p class="text-xs text-[#8A5A70] mt-1">Pode ser foto simples da prateleira ou balcão</p>
+
+              <!-- Botões Mobile-Friendly (Galeria e Câmera) -->
+              <div class="mt-4 flex flex-wrap items-center justify-center gap-2.5 w-full">
+                <button type="button" id="btn-pick-gallery" class="flex-1 min-w-[130px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-valeska-berry hover:bg-valeska-berryDark text-white text-xs font-bold shadow-sm transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  Escolher Foto
+                </button>
+                <button type="button" id="btn-open-camera" class="flex-1 min-w-[130px] inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-valeska-pastel/60 text-valeska-berry border border-valeska-pink/60 text-xs font-bold shadow-sm transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  </svg>
+                  Tirar Foto
+                </button>
+              </div>
+            </div>
+
+            <!-- Pré-visualização da Foto Carregada -->
+            <div id="upload-preview-state" class="hidden">
+              <div class="relative rounded-xl overflow-hidden bg-white border border-valeska-pastel max-h-60 flex items-center justify-center">
+                <img id="uploaded-thumb" src="" alt="Prévia do produto" class="max-h-60 w-auto object-contain mx-auto" />
+                <button type="button" id="btn-remove-photo" title="Trocar foto" class="absolute top-2.5 right-2.5 px-3 py-1.5 rounded-xl bg-valeska-berryDark/90 hover:bg-valeska-berry text-white text-xs font-bold shadow-md flex items-center gap-1.5 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  Trocar foto
+                </button>
+              </div>
+              <p id="uploaded-filename" class="text-[11px] font-medium text-[#8A5A70] mt-2 truncate"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: Dados do Produto e Preços -->
+        <div class="bg-white rounded-3xl p-5 border border-valeska-pastel shadow-rose space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-extrabold text-valeska-berryDark flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-valeska-berry text-white text-xs flex items-center justify-center font-bold">2</span>
+              Produto e Oferta
+            </h3>
+            <!-- Cálculo Automático de Desconto -->
+            <div id="discount-live-badge" class="hidden items-center gap-1 px-2.5 py-1 rounded-full bg-valeska-sage/25 text-valeska-sageDark text-xs font-extrabold border border-valeska-sage/50">
+              <span>-0% OFF</span>
+            </div>
+          </div>
+
+          <!-- Nome do Produto -->
+          <div>
+            <label for="input-product-name" class="block text-xs font-bold text-valeska-berryDark mb-1.5">
+              Nome do Produto
+            </label>
+            <input
+              type="text"
+              id="input-product-name"
+              placeholder="Ex: Malbec Tradicional 100ml"
+              maxlength="65"
+              class="w-full px-4 py-3 rounded-2xl bg-valeska-bg/60 border border-valeska-pastel focus:border-valeska-berry focus:bg-white focus:ring-2 focus:ring-valeska-pink/30 outline-none text-sm font-semibold text-valeska-berryDark placeholder-[#B08498] transition"
+            />
+          </div>
+
+          <!-- Preço Original e Preço Promocional -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="input-original-price" class="block text-xs font-bold text-[#78465E] mb-1.5">
+                Preço Original (DE:)
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#9C6A82]">R$</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  id="input-original-price"
+                  placeholder="219,90"
+                  class="w-full pl-10 pr-3.5 py-3 rounded-2xl bg-valeska-bg/60 border border-valeska-pastel focus:border-valeska-berry focus:bg-white focus:ring-2 focus:ring-valeska-pink/30 outline-none text-sm font-bold text-[#78465E] placeholder-[#C49BB0] transition"
+                />
+              </div>
+            </div>
+            <div>
+              <label for="input-promo-price" class="block text-xs font-bold text-valeska-berry mb-1.5">
+                Promocional (POR:)
+              </label>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-extrabold text-valeska-berry">R$</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  id="input-promo-price"
+                  placeholder="149,90"
+                  class="w-full pl-10 pr-3.5 py-3 rounded-2xl bg-valeska-pastel/40 border-2 border-valeska-pink/60 focus:border-valeska-berry focus:bg-white focus:ring-2 focus:ring-valeska-pink/30 outline-none text-base font-extrabold text-valeska-berry placeholder-[#C49BB0] transition"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumo de Economia em Tempo Real -->
+          <div id="savings-summary" class="hidden rounded-2xl bg-valeska-sage/15 border border-valeska-sage/40 px-3.5 py-2.5 flex items-center justify-between text-xs">
+            <span class="font-semibold text-valeska-sageDark flex items-center gap-1.5">
+              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+              </svg>
+              Desconto calculado automaticamente:
+            </span>
+            <span id="savings-text" class="font-extrabold text-valeska-berryDark"></span>
+          </div>
+        </div>
+
+        <!-- CARD 3: Formato e Estilo de Cenário IA -->
+        <div class="bg-white rounded-3xl p-5 border border-valeska-pastel shadow-rose space-y-5">
+          <h3 class="text-sm font-extrabold text-valeska-berryDark flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-valeska-berry text-white text-xs flex items-center justify-center font-bold">3</span>
+            Formato e Cenário da IA
+          </h3>
+
+          <!-- Seletor de Formato da Arte -->
+          <div>
+            <label class="block text-xs font-bold text-[#78465E] mb-2">Formato da Arte</label>
+            <div class="grid grid-cols-3 gap-2.5" id="format-selector">
+              <button type="button" data-format="story" class="format-btn active flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-valeska-berry bg-valeska-pastel/60 text-valeska-berryDark transition cursor-pointer">
+                <span class="w-5 h-8 rounded-[4px] border-2 border-current bg-white/70"></span>
+                <span class="text-xs font-extrabold leading-tight text-center">Story / Status</span>
+                <span class="text-[10px] font-semibold opacity-75">9:16</span>
+              </button>
+              <button type="button" data-format="square" class="format-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/50 hover:border-valeska-pink text-[#78465E] transition cursor-pointer">
+                <span class="w-7 h-7 rounded-[4px] border-2 border-current bg-white/70"></span>
+                <span class="text-xs font-extrabold leading-tight text-center">Feed Quadrado</span>
+                <span class="text-[10px] font-semibold opacity-75">1:1</span>
+              </button>
+              <button type="button" data-format="portrait" class="format-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/50 hover:border-valeska-pink text-[#78465E] transition cursor-pointer">
+                <span class="w-6 h-7 rounded-[4px] border-2 border-current bg-white/70"></span>
+                <span class="text-xs font-extrabold leading-tight text-center">Feed Retrato</span>
+                <span class="text-[10px] font-semibold opacity-75">4:5</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Seletor de Estilo de Cenário IA -->
+          <div>
+            <label class="block text-xs font-bold text-[#78465E] mb-2">Estilo do Cenário no Estúdio IA</label>
+            <div class="grid grid-cols-2 gap-2.5" id="style-selector">
+              <!-- Estúdio Valeska -->
+              <button type="button" data-style="studio_valeska" class="style-card active text-left p-3 rounded-2xl border-2 border-valeska-berry bg-valeska-pastel/50 transition cursor-pointer relative overflow-hidden">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FDE4EE] via-[#F284B6] to-[#95BD99] border border-white shadow-sm shrink-0"></span>
+                  <span class="text-xs font-extrabold text-valeska-berryDark leading-tight">Estúdio Valeska</span>
+                </div>
+                <p class="text-[11px] text-[#78465E] leading-snug">Pódio elegante rosa pastel, verde sálvia e luz suave.</p>
+              </button>
+
+              <!-- Luxo & Sofisticação -->
+              <button type="button" data-style="luxury" class="style-card text-left p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/40 hover:border-valeska-pink transition cursor-pointer relative overflow-hidden">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="w-7 h-7 rounded-xl bg-gradient-to-br from-white via-[#FDE4EE] to-[#D8B4C8] border border-valeska-pastel shadow-sm shrink-0"></span>
+                  <span class="text-xs font-extrabold text-valeska-berryDark leading-tight">Luxo &amp; Sofisticação</span>
+                </div>
+                <p class="text-[11px] text-[#78465E] leading-snug">Mármore claro, vidro, brilhos suaves e clima premium.</p>
+              </button>
+
+              <!-- Super Oferta -->
+              <button type="button" data-style="super_offer" class="style-card text-left p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/40 hover:border-valeska-pink transition cursor-pointer relative overflow-hidden">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#F284B6] via-[#9B1D56] to-[#7A1242] border border-white shadow-sm shrink-0"></span>
+                  <span class="text-xs font-extrabold text-valeska-berryDark leading-tight">Super Oferta</span>
+                </div>
+                <p class="text-[11px] text-[#78465E] leading-snug">Rosa vibrante, magenta e clima festivo de presente.</p>
+              </button>
+
+              <!-- Jardim Suave -->
+              <button type="button" data-style="soft_garden" class="style-card text-left p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/40 hover:border-valeska-pink transition cursor-pointer relative overflow-hidden">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#95BD99] via-[#E5F2E6] to-[#F284B6] border border-white shadow-sm shrink-0"></span>
+                  <span class="text-xs font-extrabold text-valeska-berryDark leading-tight">Jardim Suave</span>
+                </div>
+                <p class="text-[11px] text-[#78465E] leading-snug">Folhas botânicas sálvia e pétalas rosas desfocadas.</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Opções Extras Rápidas (Toggles) -->
+          <div class="pt-2 border-t border-valeska-pastel space-y-3">
+            <!-- Modo da Arte -->
+            <div class="bg-valeska-bg rounded-2xl p-1.5 grid grid-cols-2 gap-1.5 border border-valeska-pastel">
+              <button type="button" data-mode="complete" class="mode-btn active py-2 px-2.5 rounded-xl text-xs font-bold bg-valeska-berry text-white shadow-sm transition cursor-pointer">
+                Arte Promocional Completa
+              </button>
+              <button type="button" data-mode="photo_only" class="mode-btn py-2 px-2.5 rounded-xl text-xs font-bold text-[#78465E] hover:text-valeska-berryDark transition cursor-pointer">
+                Só Foto IA (Sem Textos)
+              </button>
+            </div>
+
+            <!-- Toggle Etiqueta de Desconto -->
+            <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
+              <div>
+                <span class="block text-xs font-bold text-valeska-berryDark">Selo de desconto (etiqueta inclinada)</span>
+                <span class="block text-[11px] text-[#8A5A70]">Exibe "-XX% OFF" ou "DESCONTO ESPECIAL"</span>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-tag" checked class="sr-only toggle-checkbox" />
+                <div class="toggle-label w-11 h-6 bg-valeska-pastel rounded-full transition-colors p-0.5 flex items-center">
+                  <div class="toggle-dot w-5 h-5 bg-white rounded-full shadow-sm transition-transform"></div>
+                </div>
+              </div>
+            </label>
+
+            <!-- Toggle Rodapé da Loja -->
+            <label class="flex items-center justify-between gap-3 cursor-pointer py-1">
+              <div>
+                <span class="block text-xs font-bold text-valeska-berryDark">Mostrar rodapé da loja</span>
+                <span class="block text-[11px] text-[#8A5A70]">@valeskaperfumesmimos • Rua Laguna, nº 400</span>
+              </div>
+              <div class="relative shrink-0">
+                <input type="checkbox" id="toggle-footer" checked class="sr-only toggle-checkbox" />
+                <div class="toggle-label w-11 h-6 bg-valeska-pastel rounded-full transition-colors p-0.5 flex items-center">
+                  <div class="toggle-dot w-5 h-5 bg-white rounded-full shadow-sm transition-transform"></div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Botão Principal: Gerar Arte com IA -->
+        <div class="space-y-2.5">
+          <button
+            type="button"
+            id="btn-generate-ai"
+            class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-valeska-berry to-valeska-berryDark hover:from-[#ad2260] hover:to-valeska-berry text-white font-extrabold text-base shadow-rose-lg active:scale-[0.99] transition flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+            </svg>
+            <span id="btn-generate-text">Criar Arte com IA</span>
+          </button>
+
+          <button
+            type="button"
+            id="btn-use-original-direct"
+            class="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-valeska-pastel/50 text-valeska-berryDark border border-valeska-pastel text-xs font-bold transition cursor-pointer"
+          >
+            Montar rápido sem IA (usar foto original com moldura Valeska)
+          </button>
+        </div>
+      </section>
+
+      <!-- COLUNA DIREITA: Prévia ao Vivo, Ajustes Instantâneos, Download e Legenda IA -->
+      <section id="preview-section" class="lg:col-span-7 flex flex-col gap-5 lg:sticky lg:top-24">
+
+        <!-- CARD DA PRÉVIA DO CANVAS -->
+        <div class="bg-white rounded-3xl p-4 sm:p-6 border border-valeska-pastel shadow-rose">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-sm sm:text-base font-extrabold text-valeska-berryDark flex items-center gap-2">
+                Prévia da Arte em Alta Resolução
+                <span id="ai-badge-status" class="hidden px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-valeska-sage/25 text-valeska-sageDark border border-valeska-sage/50">
+                  Foto Estúdio IA ✨
+                </span>
+              </h3>
+              <p id="canvas-dimensions-label" class="text-[11px] text-[#8A5A70] font-medium">
+                Story / WhatsApp Status • 1080 × 1920 px
+              </p>
+            </div>
+
+            <!-- Botão de Alternar Foto Original vs IA (aparece após gerar com IA) -->
+            <button type="button" id="btn-toggle-compare" class="hidden px-3 py-1.5 rounded-xl bg-valeska-bg hover:bg-valeska-pastel text-valeska-berry text-xs font-bold border border-valeska-pink/40 transition cursor-pointer">
+              Ver foto original
+            </button>
+          </div>
+
+          <!-- Container do Canvas + Overlay de Loading e Fallback de Erro -->
+          <div class="relative w-full rounded-2xl bg-valeska-bg border border-valeska-pastel/80 p-3 sm:p-5 flex items-center justify-center min-h-[380px] sm:min-h-[480px] overflow-hidden">
+
+            <!-- Canvas de Alta Resolução (escala responsiva via CSS mantendo 1080px internos) -->
+            <canvas
+              id="art-canvas"
+              class="max-h-[560px] w-auto max-w-full rounded-2xl shadow-rose-lg border border-white/80 bg-valeska-pastel transition-all duration-300"
+            ></canvas>
+
+            <!-- Overlay de Carregamento Animado da IA -->
+            <div id="ai-loading-overlay" class="hidden absolute inset-0 bg-white/92 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center">
+              <div class="animate-float w-20 h-20 rounded-3xl bg-gradient-to-br from-valeska-pastel via-white to-valeska-sage/30 border-2 border-valeska-pink/50 shadow-rose flex items-center justify-center mb-5">
+                <svg class="w-10 h-10 text-valeska-berry" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                </svg>
+              </div>
+              <h4 id="loading-title" class="text-base sm:text-lg font-extrabold text-valeska-berryDark max-w-xs">
+                A IA está fotografando seu produto no estúdio Valeska...
+              </h4>
+              <p id="loading-subtitle" class="text-xs sm:text-sm text-[#8A5A70] mt-1.5 max-w-xs">
+                Preservando rótulo, frasco e detalhes reais com iluminação profissional.
+              </p>
+              <!-- Barra de progresso shimmer -->
+              <div class="mt-5 w-56 h-2.5 rounded-full bg-valeska-pastel overflow-hidden relative shimmer-bar">
+                <div class="h-full w-full bg-gradient-to-r from-valeska-pink via-valeska-berry to-valeska-sage opacity-80"></div>
+              </div>
+            </div>
+
+            <!-- Overlay Elegante de Erro / Recuperação -->
+            <div id="ai-error-overlay" class="hidden absolute inset-0 bg-white/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-6 text-center">
+              <div class="w-16 h-16 rounded-2xl bg-valeska-pastel text-valeska-berry flex items-center justify-center mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <h4 class="text-base font-extrabold text-valeska-berryDark">A IA demorou ou está instável no momento</h4>
+              <p id="ai-error-message" class="text-xs sm:text-sm text-[#78465E] mt-1.5 max-w-sm">
+                Não se preocupe! Você pode tentar novamente agora ou montar sua arte imediatamente usando a foto original com tratamento de cor e moldura da Valeska.
+              </p>
+              <div class="mt-5 flex flex-col sm:flex-row gap-2.5 w-full max-w-sm">
+                <button type="button" id="btn-retry-ai" class="flex-1 py-3 px-4 rounded-xl bg-valeska-berry hover:bg-valeska-berryDark text-white text-xs font-bold shadow-sm transition cursor-pointer">
+                  Tentar novamente com IA
+                </button>
+                <button type="button" id="btn-fallback-original" class="flex-1 py-3 px-4 rounded-xl bg-valeska-pastel hover:bg-valeska-pink/40 text-valeska-berryDark text-xs font-bold transition cursor-pointer">
+                  Usar foto original
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ajustes Instantâneos Pós-Geração (Sem gastar nova chamada de IA!) -->
+          <div class="mt-4 pt-4 border-t border-valeska-pastel space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <span class="text-xs font-extrabold text-valeska-berryDark">
+                Layout dos Textos <span class="font-medium text-[#8A5A70]">(alteração instantânea)</span>
+              </span>
+              <div class="grid grid-cols-3 gap-1.5" id="layout-selector">
+                <button type="button" data-layout="classic" class="layout-btn active px-3 py-2 rounded-xl text-[11px] font-bold bg-valeska-berry text-white shadow-sm transition cursor-pointer">
+                  Clássico Valeska
+                </button>
+                <button type="button" data-layout="badge" class="layout-btn px-3 py-2 rounded-xl text-[11px] font-bold bg-valeska-bg text-[#78465E] border border-valeska-pastel hover:border-valeska-pink transition cursor-pointer">
+                  Etiqueta Destaque
+                </button>
+                <button type="button" data-layout="minimal" class="layout-btn px-3 py-2 rounded-xl text-[11px] font-bold bg-valeska-bg text-[#78465E] border border-valeska-pastel hover:border-valeska-pink transition cursor-pointer">
+                  Minimalista
+                </button>
+              </div>
+            </div>
+
+            <!-- Controle Fino de Enquadramento da Foto -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-valeska-bg/70 p-3 rounded-2xl border border-valeska-pastel">
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-[#78465E] mb-1">
+                  <span>Posição Vertical da Foto</span>
+                  <span id="offset-y-val">0%</span>
+                </div>
+                <input type="range" id="range-offset-y" min="-25" max="25" value="0" class="w-full accent-valeska-berry cursor-pointer" />
+              </div>
+              <div>
+                <div class="flex justify-between text-[11px] font-bold text-[#78465E] mb-1">
+                  <span>Zoom da Foto</span>
+                  <span id="zoom-val">100%</span>
+                </div>
+                <input type="range" id="range-zoom" min="85" max="135" value="100" class="w-full accent-valeska-berry cursor-pointer" />
+              </div>
+            </div>
+
+            <!-- Botões Principais de Ação: Baixar, Compartilhar e Salvar na Galeria -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 pt-1">
+              <button type="button" id="btn-download-png" class="sm:col-span-6 py-3.5 px-5 rounded-2xl bg-valeska-berry hover:bg-valeska-berryDark text-white font-extrabold text-sm shadow-rose transition flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Baixar Arte (PNG)
+              </button>
+
+              <button type="button" id="btn-share-art" class="sm:col-span-4 py-3.5 px-4 rounded-2xl bg-valeska-sage hover:bg-valeska-sageDark text-white font-extrabold text-sm shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                Compartilhar
+              </button>
+
+              <button type="button" id="btn-save-gallery" title="Salvar na galeria de hoje" class="sm:col-span-2 py-3.5 px-3 rounded-2xl bg-valeska-pastel hover:bg-valeska-pink/40 text-valeska-berryDark font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                </svg>
+                <span class="sm:hidden">Salvar na Galeria</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD DA LEGENDA PRONTA COM IA -->
+        <div class="bg-white rounded-3xl p-5 border border-valeska-pastel shadow-rose">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm font-extrabold text-valeska-berryDark flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-valeska-berry" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+                Legenda Pronta para Instagram &amp; WhatsApp
+              </h3>
+              <p class="text-[11px] text-[#8A5A70]">Texto persuasivo com preço, emojis e endereço da loja</p>
+            </div>
+            <button type="button" id="btn-generate-caption" class="px-3.5 py-2 rounded-xl bg-valeska-pastel hover:bg-valeska-pink/40 text-valeska-berryDark text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-60">
+              <svg id="caption-spinner" class="hidden w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span id="btn-caption-label">✨ Gerar Legenda com IA</span>
+            </button>
+          </div>
+
+          <textarea
+            id="caption-textarea"
+            rows="4"
+            placeholder="Clique em 'Gerar Legenda com IA' ou crie sua arte para receber uma legenda carinhosa e pronta para copiar e colar no Instagram ou WhatsApp..."
+            class="w-full p-3.5 rounded-2xl bg-valeska-bg/70 border border-valeska-pastel focus:border-valeska-berry focus:bg-white outline-none text-xs sm:text-sm text-[#4A1C32] leading-relaxed resize-y"
+          ></textarea>
+
+          <div class="mt-2.5 flex items-center justify-between gap-2">
+            <span class="text-[11px] text-[#8A5A70]">Você pode editar o texto livremente antes de copiar.</span>
+            <button type="button" id="btn-copy-caption" class="px-4 py-2 rounded-xl bg-valeska-berry hover:bg-valeska-berryDark text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              Copiar Legenda
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- GALERIA: ARTES CRIADAS HOJE -->
+    <section id="galeria-secao" class="mt-10 bg-white rounded-3xl p-5 sm:p-6 border border-valeska-pastel shadow-rose">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div>
+          <h3 class="text-base sm:text-lg font-extrabold text-valeska-berryDark flex items-center gap-2">
+            Artes Criadas Hoje
+            <span id="gallery-total-text" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-valeska-pastel text-valeska-berry">0 artes</span>
+          </h3>
+          <p class="text-xs text-[#8A5A70]">Crie várias ofertas seguidas e baixe ou edite qualquer uma novamente.</p>
+        </div>
+        <button type="button" id="btn-clear-gallery" class="hidden text-xs font-bold text-[#9C6A82] hover:text-valeska-berry underline cursor-pointer">
+          Limpar galeria
+        </button>
+      </div>
+
+      <!-- Estado Vazio da Galeria -->
+      <div id="gallery-empty" class="rounded-2xl border border-dashed border-valeska-pink/60 bg-valeska-bg/60 py-8 px-4 text-center">
+        <p class="text-sm font-bold text-valeska-berryDark">Nenhuma arte salva ainda hoje</p>
+        <p class="text-xs text-[#8A5A70] mt-1">Assim que você gerar uma arte com IA (ou clicar em Salvar), ela aparecerá aqui automaticamente.</p>
+      </div>
+
+      <!-- Grid de Miniaturas -->
+      <div id="gallery-grid" class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </section>
+  </main>
+
+  <!-- Rodapé Institucional Discreto -->
+  <footer class="mt-8 py-6 border-t border-valeska-pastel bg-white/60 text-center px-4">
+    <p class="font-script text-2xl text-valeska-berry">Valeska Perfumes &amp; Mimos</p>
+    <p class="text-xs text-[#78465E] font-medium mt-0.5">
+      @valeskaperfumesmimos • Rua Laguna, nº 400, Bairro Aeroporto, loja 3, próximo ao Colégio Celebridades
+    </p>
+  </footer>
+
+  <!-- Lógica Completa do Aplicativo -->
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. CONFIGURAÇÕES E CONSTANTES DA LOJA E GEMINI API
+      // =========================================================================
+      const apiKey = ""; // Fornecida automaticamente em tempo de execução
+      const IMAGE_MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
+      const TEXT_MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const STORE_INFO = {
+        name: "Valeska",
+        subtitle: "PERFUMES & MIMOS",
+        instagram: "@valeskaperfumesmimos",
+        address: "Rua Laguna, nº 400, Bairro Aeroporto, loja 3",
+        landmark: "próximo ao Colégio Celebridades",
+        colors: {
+          pastelBg: "#FDE4EE",
+          lightBg: "#FFF5F9",
+          berry: "#9B1D56",
+          berryDark: "#7A1242",
+          pink: "#F284B6",
+          sage: "#95BD99",
+          sageDark: "#5F8D65",
+          white: "#FFFFFF"
+        }
+      };
+
+      const FORMAT_SPECS = {
+        story: {
+          label: "Story / WhatsApp Status",
+          width: 1080,
+          height: 1920,
+          apiAspectRatio: "9:16",
+          desc: "Story / WhatsApp Status • 1080 × 1920 px"
+        },
+        square: {
+          label: "Feed Quadrado",
+          width: 1080,
+          height: 1080,
+          apiAspectRatio: "1:1",
+          desc: "Post Feed Quadrado • 1080 × 1080 px"
+        },
+        portrait: {
+          label: "Feed Retrato",
+          width: 1080,
+          height: 1350,
+          apiAspectRatio: "3:4", // Mais próximo suportado para crop suave 4:5
+          desc: "Post Feed Retrato • 1080 × 1350 px"
+        }
+      };
+
+      const STYLE_PROMPTS = {
+        studio_valeska: {
+          name: "Estúdio Valeska",
+          prompt: "Place the exact product centered on a sleek minimalist matte pastel-pink (#FDE4EE) cylindrical studio podium with subtle soft sage-green (#95BD99) decorative accents and soft diffused pink-tinted studio lighting. Clean luxury perfumery photography background in soft pastel blush pink (#FFF5F9 to #FDE4EE) with gentle organic shadows and delicate bokeh light."
+        },
+        luxury: {
+          name: "Luxo & Sofisticação",
+          prompt: "Place the exact product centered on a polished white and pale rose-veined Carrara marble pedestal with delicate crystal glass reflections and subtle warm champagne-pink studio rim lighting. Ultra-clean high-end luxury fragrance editorial backdrop in luminous soft cream-pink (#FFF5F9) with refined shadows and subtle shimmering light."
+        },
+        super_offer: {
+          name: "Super Oferta",
+          prompt: "Place the exact product centered on an elevated glossy pastel-pink and soft berry-magenta (#9B1D56, #F284B6) promotional showcase podium with subtle out-of-focus silk gift ribbons and delicate celebratory sparkles in the background. Bright, energetic yet chic commercial perfume photography with clean pastel pink backdrop (#FDE4EE)."
+        },
+        soft_garden: {
+          name: "Jardim Suave",
+          prompt: "Place the exact product centered on a natural smooth cream stone surface surrounded softly at the edges by out-of-focus delicate sage-green eucalyptus leaves (#95BD99) and soft pastel pink rose petals (#F284B6). Airy sunlit botanical perfume studio backdrop in soft pastel pink (#FFF5F9) with gentle dappled shadows."
+        }
+      };
+
+      const LOADING_MESSAGES = [
+        {
+          title: "A IA está fotografando seu produto no estúdio Valeska...",
+          sub: "Preservando rótulo, frasco e detalhes reais com iluminação profissional."
+        },
+        {
+          title: "Montando o cenário na paleta rosa pastel e verde sálvia...",
+          sub: "Criando sombras suaves e acabamento de revista de perfumaria."
+        },
+        {
+          title: "Dando os toques finais na sua foto de oferta...",
+          sub: "Quase pronto! Já vamos combinar com o design da loja."
+        }
+      ];
+
+      // =========================================================================
+      // 2. ESTADO GLOBAL DA APLICAÇÃO
+      // =========================================================================
+      const state = {
+        productName: "",
+        originalPriceCents: 0,
+        promoPriceCents: 0,
+        format: "story",          // story | square | portrait
+        style: "studio_valeska",  // studio_valeska | luxury | super_offer | soft_garden
+        mode: "complete",         // complete | photo_only
+        layout: "classic",        // classic | badge | minimal
+        showTag: true,
+        showFooter: true,
+        offsetY: 0,               // -25 a 25 (%)
+        zoom: 100,                // 85 a 135 (%)
+        uploadedBase64: null,     // Sem prefixo data:...
+        uploadedMimeType: "image/jpeg",
+        uploadedImgEl: null,      // HTMLImageElement da foto original
+        aiImgEl: null,            // HTMLImageElement da foto gerada pela IA
+        usingAiImage: false,      // true se estiver exibindo a foto gerada pela IA
+        showOriginalCompare: false,
+        isGeneratingAI: false,
+        gallery: []               // Sessão: artes criadas hoje
+      };
+
+      // Referências de DOM
+      const els = {
+        toastContainer: document.getElementById("toast-container"),
+        dropzone: document.getElementById("dropzone"),
+        fileInput: document.getElementById("file-input"),
+        cameraInput: document.getElementById("camera-input"),
+        btnPickGallery: document.getElementById("btn-pick-gallery"),
+        btnOpenCamera: document.getElementById("btn-open-camera"),
+        btnRemovePhoto: document.getElementById("btn-remove-photo"),
+        uploadEmptyState: document.getElementById("upload-empty-state"),
+        uploadPreviewState: document.getElementById("upload-preview-state"),
+        uploadedThumb: document.getElementById("uploaded-thumb"),
+        uploadedFilename: document.getElementById("uploaded-filename"),
+        photoStatusPill: document.getElementById("photo-status-pill"),
+        inputProductName: document.getElementById("input-product-name"),
+        inputOriginalPrice: document.getElementById("input-original-price"),
+        inputPromoPrice: document.getElementById("input-promo-price"),
+        discountLiveBadge: document.getElementById("discount-live-badge"),
+        savingsSummary: document.getElementById("savings-summary"),
+        savingsText: document.getElementById("savings-text"),
+        toggleTag: document.getElementById("toggle-tag"),
+        toggleFooter: document.getElementById("toggle-footer"),
+        btnGenerateAI: document.getElementById("btn-generate-ai"),
+        btnGenerateText: document.getElementById("btn-generate-text"),
+        btnUseOriginalDirect: document.getElementById("btn-use-original-direct"),
+        btnFillDemo: document.getElementById("btn-fill-demo"),
+        canvas: document.getElementById("art-canvas"),
+        canvasDimensionsLabel: document.getElementById("canvas-dimensions-label"),
+        aiBadgeStatus: document.getElementById("ai-badge-status"),
+        btnToggleCompare: document.getElementById("btn-toggle-compare"),
+        aiLoadingOverlay: document.getElementById("ai-loading-overlay"),
+        loadingTitle: document.getElementById("loading-title"),
+        loadingSubtitle: document.getElementById("loading-subtitle"),
+        aiErrorOverlay: document.getElementById("ai-error-overlay"),
+        aiErrorMessage: document.getElementById("ai-error-message"),
+        btnRetryAI: document.getElementById("btn-retry-ai"),
+        btnFallbackOriginal: document.getElementById("btn-fallback-original"),
+        rangeOffsetY: document.getElementById("range-offset-y"),
+        offsetYVal: document.getElementById("offset-y-val"),
+        rangeZoom: document.getElementById("range-zoom"),
+        zoomVal: document.getElementById("zoom-val"),
+        btnDownloadPng: document.getElementById("btn-download-png"),
+        btnShareArt: document.getElementById("btn-share-art"),
+        btnSaveGallery: document.getElementById("btn-save-gallery"),
+        btnGenerateCaption: document.getElementById("btn-generate-caption"),
+        btnCaptionLabel: document.getElementById("btn-caption-label"),
+        captionSpinner: document.getElementById("caption-spinner"),
+        captionTextarea: document.getElementById("caption-textarea"),
+        btnCopyCaption: document.getElementById("btn-copy-caption"),
+        galleryCountBadge: document.getElementById("gallery-count-badge"),
+        galleryTotalText: document.getElementById("gallery-total-text"),
+        galleryEmpty: document.getElementById("gallery-empty"),
+        galleryGrid: document.getElementById("gallery-grid"),
+        btnClearGallery: document.getElementById("btn-clear-gallery"),
+        previewSection: document.getElementById("preview-section")
+      };
+
+      const ctx = els.canvas.getContext("2d");
+      let loadingInterval = null;
+
+      // =========================================================================
+      // 3. UTILITÁRIOS (TOASTS, MOEDA BRASILEIRA, FETCH COM BACKOFF EXPONENCIAL)
+      // =========================================================================
+      function showToast(message, type = "info") {
+        const colors = {
+          success: "bg-valeska-sageDark text-white border-valeska-sage",
+          error: "bg-valeska-berryDark text-white border-valeska-pink",
+          info: "bg-white text-valeska-berryDark border-valeska-pink/60"
+        };
+        const toast = document.createElement("div");
+        toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-rose-lg text-xs sm:text-sm font-bold flex items-center justify-between gap-3 transform transition-all duration-300 translate-y-[-10px] opacity-0 ${colors[type] || colors.info}`;
+        toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+        els.toastContainer.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.remove("translate-y-[-10px]", "opacity-0");
+        });
+
+        setTimeout(() => {
+          toast.classList.add("opacity-0", "translate-y-[-10px]");
+          setTimeout(() => toast.remove(), 300);
+        }, 3600);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function formatCentsToBRL(cents) {
+        if (!cents || cents <= 0) return "";
+        const value = (cents / 100).toFixed(2);
+        const parts = value.split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return `${parts[0]},${parts[1]}`;
+      }
+
+      function parsePriceInputToCents(raw) {
+        const digits = String(raw || "").replace(/\D/g, "");
+        if (!digits) return 0;
+        return parseInt(digits, 10);
+      }
+
+      function calculateDiscount() {
+        const orig = state.originalPriceCents;
+        const promo = state.promoPriceCents;
+        if (orig > 0 && promo > 0 && promo < orig) {
+          const percent = Math.round(((orig - promo) / orig) * 100);
+          const diffCents = orig - promo;
+          return { percent, diffCents };
+        }
+        return { percent: 0, diffCents: 0 };
+      }
+
+      function updateDiscountUI() {
+        const { percent, diffCents } = calculateDiscount();
+        if (percent > 0) {
+          els.discountLiveBadge.textContent = `-${percent}% OFF`;
+          els.discountLiveBadge.classList.remove("hidden");
+          els.discountLiveBadge.classList.add("inline-flex");
+          els.savingsText.textContent = `-${percent}% (Economia de R$ ${formatCentsToBRL(diffCents)})`;
+          els.savingsSummary.classList.remove("hidden");
+        } else {
+          els.discountLiveBadge.classList.add("hidden");
+          els.discountLiveBadge.classList.remove("inline-flex");
+          els.savingsSummary.classList.add("hidden");
+        }
+      }
+
+      /**
+       * Faz chamadas HTTP com Exponential Backoff (1s, 2s, 4s, 8s) para resiliência contra throttling.
+       */
+      async function fetchWithBackoff(url, options, maxRetries = 4) {
+        let lastError = null;
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          try {
+            const response = await fetch(url, options);
+            if (response.ok) {
+              return await response.json();
+            }
+            if (response.status === 429 || response.status >= 500) {
+              lastError = new Error(`HTTP ${response.status}`);
+            } else {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData?.error?.message || `Erro HTTP ${response.status}`);
+            }
+          } catch (err) {
+            lastError = err;
+            if (attempt === maxRetries) break;
+          }
+          const delayMs = Math.pow(2, attempt) * 1000;
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+        throw lastError || new Error("Falha de conexão com a API.");
+      }
+
+      /**
+       * Redimensiona e normaliza a imagem enviada pelo usuário antes de mandar para a IA,
+       * garantindo envio rápido no celular sem perder nitidez dos rótulos.
+       */
+      function processUploadedFile(file) {
+        if (!file || !file.type.startsWith("image/")) {
+          showToast("Por favor, selecione um arquivo de imagem válido.", "error");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            // Normalizar dimensão máxima para 1280px
+            const maxDim = 1280;
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+            if (w > maxDim || h > maxDim) {
+              if (w >= h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = w;
+            tempCanvas.height = h;
+            const tCtx = tempCanvas.getContext("2d");
+            tCtx.fillStyle = "#FFFFFF";
+            tCtx.fillRect(0, 0, w, h);
+            tCtx.drawImage(img, 0, 0, w, h);
+
+            const dataUrl = tempCanvas.toDataURL("image/jpeg", 0.9);
+            state.uploadedBase64 = dataUrl.split(",")[1];
+            state.uploadedMimeType = "image/jpeg";
+            state.uploadedImgEl = img;
+            // Ao trocar a foto, limpa a imagem IA anterior para refletir a nova foto
+            state.aiImgEl = null;
+            state.usingAiImage = false;
+            state.showOriginalCompare = false;
+            state.offsetY = 0;
+            state.zoom = 100;
+            els.rangeOffsetY.value = 0;
+            els.offsetYVal.textContent = "0%";
+            els.rangeZoom.value = 100;
+            els.zoomVal.textContent = "100%";
+
+            // Atualizar UI do Upload
+            els.uploadedThumb.src = dataUrl;
+            els.uploadedFilename.textContent = file.name || "Foto do produto carregada";
+            els.uploadEmptyState.classList.add("hidden");
+            els.uploadPreviewState.classList.remove("hidden");
+            els.photoStatusPill.textContent = "Foto pronta ✓";
+            els.photoStatusPill.className = "text-[11px] font-bold text-valeska-sageDark bg-valeska-sage/20 px-2.5 py-1 rounded-full border border-valeska-sage/50";
+            els.aiBadgeStatus.classList.add("hidden");
+            els.btnToggleCompare.classList.add("hidden");
+            els.aiErrorOverlay.classList.add("hidden");
+
+            renderCanvas();
+            showToast("Foto carregada! Agora clique em 'Criar Arte com IA'.", "success");
+          };
+          img.onerror = () => showToast("Não foi possível ler esta imagem.", "error");
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function loadImageFromUrl(src) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => resolve(img);
+          img.onerror = (err) => reject(err);
+          img.src = src;
+        });
+      }
+
+      // =========================================================================
+      // 4. INTEGRAÇÃO COM GEMINI API (GERAÇÃO DE IMAGEM IA + LEGENDA IA)
+      // =========================================================================
+      async function generateStudioImageWithAI() {
+        if (!state.uploadedBase64) {
+          showToast("Envie primeiro a foto do produto no passo 1!", "error");
+          els.dropzone.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        if (state.isGeneratingAI) return;
+
+        state.isGeneratingAI = true;
+        els.btnGenerateAI.disabled = true;
+        els.btnGenerateText.textContent = "Criando foto no estúdio IA...";
+        els.aiErrorOverlay.classList.add("hidden");
+        els.aiLoadingOverlay.classList.remove("hidden");
+
+        // No celular, rola suavemente até a prévia para acompanhar a mágica
+        if (window.innerWidth < 1024) {
+          els.previewSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        // Rotacionar mensagens amigáveis durante o carregamento
+        let msgIdx = 0;
+        els.loadingTitle.textContent = LOADING_MESSAGES[0].title;
+        els.loadingSubtitle.textContent = LOADING_MESSAGES[0].sub;
+        loadingInterval = setInterval(() => {
+          msgIdx = (msgIdx + 1) % LOADING_MESSAGES.length;
+          els.loadingTitle.textContent = LOADING_MESSAGES[msgIdx].title;
+          els.loadingSubtitle.textContent = LOADING_MESSAGES[msgIdx].sub;
+        }, 3200);
+
+        try {
+          const styleInfo = STYLE_PROMPTS[state.style] || STYLE_PROMPTS.studio_valeska;
+          const formatSpec = FORMAT_SPECS[state.format] || FORMAT_SPECS.story;
+          const productHint = state.productName.trim()
+            ? `The main subject is "${state.productName.trim()}".`
+            : "The main subject is the cosmetic, perfume bottle, or gift product shown in the photo.";
+
+          const compositionGuide = state.mode === "complete"
+            ? "CRITICAL COMPOSITION RULE: Place the product neatly in the vertical middle area of the frame (slightly centered), leaving generous clean unobstructed pastel background breathing space at the top 22% (for the store logo) and bottom 28% (for price typography)."
+            : "COMPOSITION RULE: Center the product heroically with balanced margins, magazine-quality commercial photography.";
+
+          const prompt = [
+            "You are a world-class commercial perfume & beauty product photographer for the Brazilian boutique 'Valeska Perfumes & Mimos'.",
+            productHint,
+            "TASK: Extract and preserve the EXACT real product from the attached reference photo with 100% fidelity — keep its exact shape, bottle/box proportions, original colors, brand logo, and label typography untouched and sharp without warping or hallucinating text.",
+            "Remove any messy shelves, background clutter, hands, price stickers, or amateur lighting from the original photo.",
+            styleInfo.prompt,
+            compositionGuide,
+            "Photorealistic commercial studio lighting, soft natural contact shadows under the product, crisp focus on the product, color harmony with pastel pink (#FDE4EE), soft sage green (#95BD99), medium rose (#F284B6), and berry accents (#9B1D56).",
+            "STRICT RULE: DO NOT add any text, prices, watermarks, logos, banners, or numbers anywhere in the generated image. Return ONLY the clean photographic scene with the real product."
+          ].join(" ");
+
+          const payload = {
+            contents: [{
+              role: "user",
+              parts: [
+                { text: prompt },
+                {
+                  inlineData: {
+                    mimeType: state.uploadedMimeType,
+                    data: state.uploadedBase64
+                  }
+                }
+              ]
+            }],
+            generationConfig: {
+              responseModalities: ["TEXT", "IMAGE"],
+              imageConfig: {
+                aspectRatio: formatSpec.apiAspectRatio
+              }
+            }
+          };
+
+          const result = await fetchWithBackoff(IMAGE_MODEL_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const imagePart = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData?.data);
+          if (!imagePart) {
+            throw new Error("A IA não retornou a imagem editada desta vez.");
+          }
+
+          const mime = imagePart.inlineData.mimeType || "image/png";
+          const dataUrl = `data:${mime};base64,${imagePart.inlineData.data}`;
+          const generatedImg = await loadImageFromUrl(dataUrl);
+
+          state.aiImgEl = generatedImg;
+          state.usingAiImage = true;
+          state.showOriginalCompare = false;
+          state.offsetY = 0;
+          state.zoom = 100;
+          els.rangeOffsetY.value = 0;
+          els.offsetYVal.textContent = "0%";
+          els.rangeZoom.value = 100;
+          els.zoomVal.textContent = "100%";
+
+          els.aiBadgeStatus.classList.remove("hidden");
+          els.btnToggleCompare.classList.remove("hidden");
+          els.btnToggleCompare.textContent = "Ver foto original";
+
+          await renderCanvas();
+          saveCurrentArtToGallery(true);
+          showToast("Arte pronta com cenário de estúdio IA! ✨", "success");
+
+          // Se a legenda ainda estiver vazia e houver nome do produto, gera legenda automaticamente
+          if (!els.captionTextarea.value.trim() && state.productName.trim()) {
+            generateCaptionWithAI(true);
+          }
+        } catch (err) {
+          console.error("Erro ao gerar imagem com IA:", err);
+          els.aiErrorMessage.textContent = "Não conseguimos finalizar a foto com a IA agora. Você pode tentar novamente ou montar a arte na hora usando sua foto original com o design da Valeska.";
+          els.aiErrorOverlay.classList.remove("hidden");
+        } finally {
+          clearInterval(loadingInterval);
+          state.isGeneratingAI = false;
+          els.aiLoadingOverlay.classList.add("hidden");
+          els.btnGenerateAI.disabled = false;
+          els.btnGenerateText.textContent = "Criar Arte com IA";
+        }
+      }
+
+      async function generateCaptionWithAI(silent = false) {
+        const productName = state.productName.trim() || "Produto em Oferta";
+        const origStr = formatCentsToBRL(state.originalPriceCents);
+        const promoStr = formatCentsToBRL(state.promoPriceCents);
+        const { percent } = calculateDiscount();
+
+        els.btnGenerateCaption.disabled = true;
+        els.captionSpinner.classList.remove("hidden");
+        els.btnCaptionLabel.textContent = "Escrevendo legenda...";
+
+        const systemPrompt = `Você é a social media da loja "${STORE_INFO.name} Perfumes & Mimos" (${STORE_INFO.instagram}), localizada na ${STORE_INFO.address}, ${STORE_INFO.landmark}.
+Escreva legendas em Português do Brasil (pt-BR) acolhedoras, femininas, persuasivas e prontas para postar no Instagram ou enviar no WhatsApp.
+Regras:
+- Seja direta, carinhosa e animada, sem exageros artificiais.
+- Destaque o nome do produto, o preço original (se informado), o preço promocional e a economia.
+- Use poucos emojis elegantes (✨💖🎁🛍️📍).
+- Termine com uma chamada para ação convidando a chamar no Direct/WhatsApp ou visitar a loja no endereço: ${STORE_INFO.address} (${STORE_INFO.landmark}).
+- Inclua 3 a 4 hashtags relevantes no final (#ValeskaPerfumesEMimos #OfertaEspecial etc.).
+- Retorne APENAS o texto final da legenda, sem aspas ou introduções.`;
+
+        const userQuery = `Crie uma legenda promocional para:
+- Produto: ${productName}
+- Preço original: ${origStr ? "R$ " + origStr : "não informado"}
+- Preço promocional: ${promoStr ? "R$ " + promoStr : "consultar"}
+- Desconto: ${percent > 0 ? percent + "% OFF" : "preço especial"}`;
+
+        try {
+          const payload = {
+            contents: [{ parts: [{ text: userQuery }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+          };
+
+          const result = await fetchWithBackoff(TEXT_MODEL_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          const caption = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+          if (caption) {
+            els.captionTextarea.value = caption;
+            if (!silent) showToast("Legenda pronta gerada com IA! 💖", "success");
+          } else {
+            throw new Error("Resposta vazia da IA.");
+          }
+        } catch (err) {
+          // Fallback local simpático caso a API de texto falhe
+          const fallbackLines = [
+            `✨ OFERTA ESPECIAL NA VALESKA PERFUMES & MIMOS! 💖`,
+            ``,
+            `Olha essa oportunidade imperdível que separamos para você:`,
+            `🎁 ${productName}`,
+            origStr ? `De: R$ ${origStr}` : null,
+            promoStr ? `🔥 Por apenas: R$ ${promoStr}${percent > 0 ? ` (${percent}% OFF!)` : ""}` : null,
+            ``,
+            `Corre para garantir o seu antes que acabe! Chame no Direct ou WhatsApp 🛍️`,
+            `📍 ${STORE_INFO.address} (${STORE_INFO.landmark})`,
+            `Instagram: ${STORE_INFO.instagram}`,
+            ``,
+            `#ValeskaPerfumesEMimos #Perfumaria #OfertaEspecial #Mimos`
+          ].filter(line => line !== null).join("\n");
+
+          els.captionTextarea.value = fallbackLines;
+          if (!silent) showToast("Legenda criada com modelo pronto da loja!", "info");
+        } finally {
+          els.btnGenerateCaption.disabled = false;
+          els.captionSpinner.classList.add("hidden");
+          els.btnCaptionLabel.textContent = "✨ Gerar Legenda com IA";
+        }
+      }
+
+      // =========================================================================
+      // 5. MOTOR GRÁFICO HTML5 CANVAS EM ALTA RESOLUÇÃO (1080px DE LARGURA)
+      // =========================================================================
+      function roundRectPath(c, x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        c.beginPath();
+        c.moveTo(x + radius, y);
+        c.arcTo(x + w, y, x + w, y + h, radius);
+        c.arcTo(x + w, y + h, x, y + h, radius);
+        c.arcTo(x, y + h, x, y, radius);
+        c.arcTo(x, y, x + w, y, radius);
+        c.closePath();
+      }
+
+      function wrapTextLines(c, text, maxWidth, maxLines = 2) {
+        const words = text.trim().split(/\s+/);
+        const lines = [];
+        let current = "";
+
+        for (let i = 0; i < words.length; i++) {
+          const testLine = current ? `${current} ${words[i]}` : words[i];
+          if (c.measureText(testLine).width <= maxWidth) {
+            current = testLine;
+          } else {
+            if (current) lines.push(current);
+            current = words[i];
+            if (lines.length === maxLines - 1) {
+              // Junta o restante na última linha e reticências se ultrapassar
+              let remainder = words.slice(i).join(" ");
+              while (c.measureText(remainder).width > maxWidth && remainder.length > 4) {
+                remainder = remainder.slice(0, -2) + "…";
+              }
+              lines.push(remainder);
+              return lines;
+            }
+          }
+        }
+        if (current) lines.push(current);
+        return lines;
+      }
+
+      /**
+       * Desenha as ondas orgânicas da identidade visual da Valeska nos cantos.
+       */
+      function drawBrandWaves(c, W, H) {
+        c.save();
+
+        // Canto superior esquerdo: onda verde sálvia + rosa médio
+        c.fillStyle = STORE_INFO.colors.sage;
+        c.beginPath();
+        c.moveTo(0, 0);
+        c.lineTo(W * 0.34, 0);
+        c.bezierCurveTo(W * 0.28, H * 0.08, W * 0.14, H * 0.07, 0, H * 0.14);
+        c.closePath();
+        c.fill();
+
+        c.fillStyle = STORE_INFO.colors.pink;
+        c.beginPath();
+        c.moveTo(0, 0);
+        c.lineTo(W * 0.22, 0);
+        c.bezierCurveTo(W * 0.17, H * 0.05, W * 0.09, H * 0.05, 0, H * 0.10);
+        c.closePath();
+        c.fill();
+
+        // Canto inferior direito: onda verde sálvia + rosa médio + detalhe magenta
+        c.fillStyle = STORE_INFO.colors.sage;
+        c.beginPath();
+        c.moveTo(W, H);
+        c.lineTo(W * 0.62, H);
+        c.bezierCurveTo(W * 0.70, H * 0.92, W * 0.85, H * 0.91, W, H * 0.84);
+        c.closePath();
+        c.fill();
+
+        c.fillStyle = STORE_INFO.colors.pink;
+        c.beginPath();
+        c.moveTo(W, H);
+        c.lineTo(W * 0.75, H);
+        c.bezierCurveTo(W * 0.82, H * 0.94, W * 0.90, H * 0.94, W, H * 0.89);
+        c.closePath();
+        c.fill();
+
+        c.fillStyle = STORE_INFO.colors.berry;
+        c.beginPath();
+        c.moveTo(W, H);
+        c.lineTo(W * 0.86, H);
+        c.bezierCurveTo(W * 0.90, H * 0.965, W * 0.95, H * 0.96, W, H * 0.93);
+        c.closePath();
+        c.fill();
+
+        c.restore();
+      }
+
+      /**
+       * Desenha o logotipo oficial da Valeska (caixinha de presente + texto caligráfico) em vetor no Canvas.
+       */
+      function drawValeskaLogo(c, centerX, topY, scale = 1) {
+        c.save();
+        c.translate(centerX, topY);
+        c.scale(scale, scale);
+
+        // Sombra branca suave atrás do logo para garantir leitura em qualquer fundo
+        c.shadowColor = "rgba(255, 245, 249, 0.95)";
+        c.shadowBlur = 22;
+
+        // 1. Caixinha de presente estilizada (centralizada em x=0, y=0..68)
+        c.save();
+        c.translate(-40, 0);
+        // Laço coração
+        c.strokeStyle = STORE_INFO.colors.berry;
+        c.lineWidth = 4;
+        c.lineCap = "round";
+        c.lineJoin = "round";
+        c.fillStyle = STORE_INFO.colors.pastelBg;
+        c.beginPath();
+        c.moveTo(40, 24);
+        c.bezierCurveTo(32, 8, 16, 12, 22, 23);
+        c.bezierCurveTo(26, 29, 34, 28, 40, 26);
+        c.bezierCurveTo(46, 28, 54, 29, 58, 23);
+        c.bezierCurveTo(64, 12, 48, 8, 40, 24);
+        c.closePath();
+        c.fill();
+        c.stroke();
+
+        // Peças da caixa
+        c.shadowBlur = 0;
+        // Tampa esquerda
+        c.save();
+        c.translate(18, 30);
+        c.rotate(-0.12);
+        c.fillStyle = STORE_INFO.colors.berry;
+        roundRectPath(c, 0, 0, 17, 13, 3.5);
+        c.fill();
+        c.restore();
+
+        // Tampa direita
+        c.save();
+        c.translate(45, 28);
+        c.rotate(0.12);
+        c.fillStyle = STORE_INFO.colors.pink;
+        roundRectPath(c, 0, 0, 17, 13, 3.5);
+        c.fill();
+        c.restore();
+
+        // Fita central verde sálvia
+        c.fillStyle = STORE_INFO.colors.sage;
+        roundRectPath(c, 34, 27, 12, 39, 3.5);
+        c.fill();
+
+        // Base esquerda
+        c.save();
+        c.translate(20, 47);
+        c.rotate(-0.07);
+        c.fillStyle = STORE_INFO.colors.sage;
+        roundRectPath(c, 0, 0, 14, 18, 3.5);
+        c.fill();
+        c.restore();
+
+        // Base direita
+        c.save();
+        c.translate(46, 46);
+        c.rotate(0.07);
+        c.fillStyle = STORE_INFO.colors.berry;
+        roundRectPath(c, 0, 0, 14, 18, 3.5);
+        c.fill();
+        c.restore();
+        c.restore();
+
+        // 2. Nome "Valeska" em Dancing Script
+        c.shadowColor = "rgba(255, 255, 255, 0.95)";
+        c.shadowBlur = 18;
+        c.fillStyle = STORE_INFO.colors.berry;
+        c.font = '700 84px "Dancing Script", cursive';
+        c.textAlign = "center";
+        c.textBaseline = "top";
+        c.fillText("Valeska", 0, 56);
+
+        // 3. Subtítulo "PERFUMES & MIMOS"
+        c.shadowBlur = 10;
+        c.fillStyle = STORE_INFO.colors.berryDark;
+        c.font = '700 17px "Plus Jakarta Sans", sans-serif';
+        drawSpacedText(c, "PERFUMES & MIMOS", 0, 146, 5.5);
+
+        c.restore();
+      }
+
+      function drawSpacedText(c, text, x, y, spacing) {
+        const chars = text.split("");
+        let totalWidth = 0;
+        chars.forEach((ch, idx) => {
+          totalWidth += c.measureText(ch).width + (idx < chars.length - 1 ? spacing : 0);
+        });
+        let curX = x - totalWidth / 2;
+        c.textAlign = "left";
+        chars.forEach((ch) => {
+          c.fillText(ch, curX, y);
+          curX += c.measureText(ch).width + spacing;
+        });
+      }
+
+      /**
+       * Desenha a etiqueta (tag) inclinada em magenta vinho igual à identidade visual da loja.
+       */
+      function drawDiscountTag(c, W, H, percent) {
+        c.save();
+        const isSquare = H <= 1150;
+        const tagX = W - (isSquare ? 155 : 175);
+        const tagY = isSquare ? 128 : 175;
+
+        c.translate(tagX, tagY);
+        c.rotate(-0.42); // Inclinada estilosa como na referência
+
+        // Sombra suave da etiqueta
+        c.shadowColor = "rgba(122, 18, 66, 0.28)";
+        c.shadowBlur = 24;
+        c.shadowOffsetY = 10;
+
+        // Corpo da etiqueta (formato tag com ponta chanfrada à direita)
+        const tw = isSquare ? 245 : 275;
+        const th = isSquare ? 116 : 132;
+        const halfW = tw / 2;
+        const halfH = th / 2;
+
+        c.fillStyle = STORE_INFO.colors.berry;
+        c.beginPath();
+        c.moveTo(-halfW + 18, -halfH);
+        c.lineTo(halfW - 36, -halfH);
+        c.lineTo(halfW, -16);
+        c.lineTo(halfW, 16);
+        c.lineTo(halfW - 36, halfH);
+        c.lineTo(-halfW + 18, halfH);
+        c.quadraticCurveTo(-halfW, halfH, -halfW, halfH - 18);
+        c.lineTo(-halfW, -halfH + 18);
+        c.quadraticCurveTo(-halfW, -halfH, -halfW + 18, -halfH);
+        c.closePath();
+        c.fill();
+
+        // Borda interna delicada pontilhada/sólida
+        c.shadowBlur = 0;
+        c.shadowOffsetY = 0;
+        c.strokeStyle = "rgba(253, 228, 238, 0.45)";
+        c.lineWidth = 2.5;
+        c.stroke();
+
+        // Furo da etiqueta + cordão
+        c.fillStyle = STORE_INFO.colors.pastelBg;
+        c.beginPath();
+        c.arc(halfW - 26, 0, 9.5, 0, Math.PI * 2);
+        c.fill();
+
+        c.strokeStyle = STORE_INFO.colors.berryDark;
+        c.lineWidth = 3.5;
+        c.beginPath();
+        c.moveTo(halfW - 20, -2);
+        c.quadraticCurveTo(halfW + 30, -22, halfW + 90, -55);
+        c.stroke();
+
+        // Texto dentro da etiqueta
+        c.fillStyle = "#FFFFFF";
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+
+        if (percent > 0) {
+          c.font = `800 ${isSquare ? 42 : 48}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText(`-${percent}% OFF`, -14, -13);
+          c.fillStyle = STORE_INFO.colors.pastelBg;
+          c.font = `700 ${isSquare ? 17 : 19}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText("DESCONTO ESPECIAL", -14, 28);
+        } else {
+          c.font = `800 ${isSquare ? 26 : 30}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText("DESCONTO", -14, -16);
+          c.fillText("ESPECIAL", -14, 18);
+        }
+
+        c.restore();
+      }
+
+      /**
+       * Desenha a foto do produto (IA ou original com tratamento suave) com zoom e offset vertical.
+       */
+      function drawProductImage(c, W, H, img, isAi, isFullBleed) {
+        c.save();
+
+        if (isFullBleed) {
+          // Foto gerada pela IA preenche todo o fundo em modo cover com enquadramento ajustável
+          const scaleBase = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+          const scale = scaleBase * (state.zoom / 100);
+          const drawW = img.naturalWidth * scale;
+          const drawH = img.naturalHeight * scale;
+          const drawX = (W - drawW) / 2;
+          const drawY = (H - drawH) / 2 + (state.offsetY / 100) * H;
+          c.drawImage(img, drawX, drawY, drawW, drawH);
+        } else {
+          // Modo Foto Original (Fallback / Sem IA):
+          // Cria um fundo estúdio suave na paleta Valeska e coloca a foto original em um porta-retrato elegante centralizado
+          const bgGrad = c.createLinearGradient(0, 0, W, H);
+          bgGrad.addColorStop(0, "#FFF5F9");
+          bgGrad.addColorStop(0.5, "#FDE4EE");
+          bgGrad.addColorStop(1, "#FBE0EC");
+          c.fillStyle = bgGrad;
+          c.fillRect(0, 0, W, H);
+
+          // Círculo decorativo suave atrás do produto
+          c.fillStyle = "rgba(255, 255, 255, 0.55)";
+          c.beginPath();
+          c.arc(W / 2, H * 0.45, W * 0.42, 0, Math.PI * 2);
+          c.fill();
+
+          const topSafe = state.mode === "complete" ? (H > 1500 ? 255 : 195) : 70;
+          const bottomSafe = state.mode === "complete" ? (H > 1500 ? 520 : (H > 1200 ? 405 : 350)) : 70;
+          const boxW = W * 0.80;
+          const boxH = Math.max(320, H - topSafe - bottomSafe);
+          const boxX = (W - boxW) / 2;
+          const boxY = topSafe + (H - topSafe - bottomSafe - boxH) / 2;
+
+          // Sombra do porta-retrato
+          c.save();
+          c.shadowColor = "rgba(155, 29, 86, 0.20)";
+          c.shadowBlur = 45;
+          c.shadowOffsetY = 18;
+          c.fillStyle = "#FFFFFF";
+          roundRectPath(c, boxX, boxY, boxW, boxH, 44);
+          c.fill();
+          c.restore();
+
+          // Clip arredondado para a foto original com leve tratamento de brilho/saturação
+          c.save();
+          roundRectPath(c, boxX + 10, boxY + 10, boxW - 20, boxH - 20, 36);
+          c.clip();
+          c.filter = "brightness(1.04) contrast(1.05) saturate(1.08)";
+          const innerW = boxW - 20;
+          const innerH = boxH - 20;
+          const scaleBase = Math.max(innerW / img.naturalWidth, innerH / img.naturalHeight);
+          const scale = scaleBase * (state.zoom / 100);
+          const drawW = img.naturalWidth * scale;
+          const drawH = img.naturalHeight * scale;
+          const drawX = boxX + 10 + (innerW - drawW) / 2;
+          const drawY = boxY + 10 + (innerH - drawH) / 2 + (state.offsetY / 100) * innerH;
+          c.drawImage(img, drawX, drawY, drawW, drawH);
+          c.restore();
+
+          // Borda sutil rosa
+          c.strokeStyle = "rgba(242, 132, 182, 0.55)";
+          c.lineWidth = 4;
+          roundRectPath(c, boxX, boxY, boxW, boxH, 44);
+          c.stroke();
+        }
+
+        c.restore();
+      }
+
+      /**
+       * Desenha o card de oferta inferior conforme o layout selecionado (Clássico, Etiqueta ou Minimalista).
+       */
+      function drawOfferCard(c, W, H, productName, origStr, promoStr, percent) {
+        const isStory = H >= 1600;
+        const isSquare = H <= 1150;
+        const footerReserve = state.showFooter ? (isSquare ? 78 : 96) : 34;
+
+        const nameText = productName || "Perfume Especial Valeska";
+        const hasOrig = Boolean(origStr);
+        const hasPromo = Boolean(promoStr);
+
+        if (state.layout === "classic") {
+          // LAYOUT 1: CLÁSSICO VALESKA (Card branco elegante com detalhes magenta e verde sálvia)
+          const cardW = W - 96;
+          const cardH = isStory ? 390 : (isSquare ? 295 : 335);
+          const cardX = 48;
+          const cardY = H - footerReserve - cardH;
+
+          c.save();
+          c.shadowColor = "rgba(122, 18, 66, 0.18)";
+          c.shadowBlur = 38;
+          c.shadowOffsetY = 12;
+          c.fillStyle = "rgba(255, 255, 255, 0.95)";
+          roundRectPath(c, cardX, cardY, cardW, cardH, 42);
+          c.fill();
+          c.restore();
+
+          // Borda dupla charmosa
+          c.save();
+          c.strokeStyle = "rgba(242, 132, 182, 0.65)";
+          c.lineWidth = 4;
+          roundRectPath(c, cardX, cardY, cardW, cardH, 42);
+          c.stroke();
+
+          // Barrinha superior verde sálvia decorativa
+          c.fillStyle = STORE_INFO.colors.sage;
+          roundRectPath(c, W / 2 - 64, cardY - 7, 128, 14, 7);
+          c.fill();
+
+          // Nome do Produto
+          c.fillStyle = STORE_INFO.colors.berryDark;
+          const titleFontSize = isSquare ? 40 : 48;
+          c.font = `800 ${titleFontSize}px "Plus Jakarta Sans", sans-serif`;
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          const lines = wrapTextLines(c, nameText, cardW - 84, 2);
+          const titleStartY = cardY + (lines.length === 1 ? (isSquare ? 64 : 84) : (isSquare ? 48 : 66));
+          lines.forEach((line, idx) => {
+            c.fillText(line, W / 2, titleStartY + idx * (titleFontSize + 8));
+          });
+
+          // Preço Original Riscado (DE: R$ ...)
+          const origY = cardY + (isSquare ? 132 : (isStory ? 186 : 160));
+          if (hasOrig) {
+            const origLabel = `DE: R$ ${origStr}`;
+            c.font = `700 ${isSquare ? 28 : 34}px "Plus Jakarta Sans", sans-serif`;
+            const tw = c.measureText(origLabel).width;
+            // Pill suave atrás do DE
+            c.fillStyle = STORE_INFO.colors.pastelBg;
+            roundRectPath(c, W / 2 - tw / 2 - 26, origY - (isSquare ? 22 : 26), tw + 52, isSquare ? 44 : 52, 26);
+            c.fill();
+
+            c.fillStyle = "#8A506B";
+            c.fillText(origLabel, W / 2, origY);
+
+            // Risco diagonal/horizontal elegante
+            c.strokeStyle = STORE_INFO.colors.berry;
+            c.lineWidth = 3.5;
+            c.beginPath();
+            c.moveTo(W / 2 - tw / 2 - 6, origY + 2);
+            c.lineTo(W / 2 + tw / 2 + 6, origY - 2);
+            c.stroke();
+          }
+
+          // Preço Promocional em Grande Destaque
+          const promoBlockY = cardY + cardH - (isSquare ? 78 : (isStory ? 105 : 88));
+          c.fillStyle = STORE_INFO.colors.sageDark;
+          c.font = `800 ${isSquare ? 20 : 23}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText(hasOrig ? "POR APENAS" : "PREÇO ESPECIAL", W / 2, promoBlockY - (isSquare ? 42 : 52));
+
+          c.fillStyle = STORE_INFO.colors.berry;
+          const promoDisplay = hasPromo ? `R$ ${promoStr}` : "CONSULTE";
+          c.font = `800 ${isSquare ? 76 : (isStory ? 96 : 86)}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText(promoDisplay, W / 2, promoBlockY + 12);
+
+          c.restore();
+
+        } else if (state.layout === "badge") {
+          // LAYOUT 2: ETIQUETA DESTAQUE (Super chamativo para Stories e WhatsApp!)
+          const centerX = W / 2;
+          const baseBottom = H - footerReserve - 20;
+
+          c.save();
+          // Gradiente suave atrás para destacar as etiquetas
+          const grad = c.createLinearGradient(0, baseBottom - 440, 0, H);
+          grad.addColorStop(0, "rgba(253, 228, 238, 0)");
+          grad.addColorStop(0.45, "rgba(253, 228, 238, 0.78)");
+          grad.addColorStop(1, "rgba(253, 228, 238, 0.96)");
+          c.fillStyle = grad;
+          c.fillRect(0, baseBottom - 440, W, H - (baseBottom - 440));
+
+          // 1. Placa do Nome do Produto em Magenta Vinho
+          const titleFontSize = isSquare ? 36 : 44;
+          c.font = `800 ${titleFontSize}px "Plus Jakarta Sans", sans-serif`;
+          const lines = wrapTextLines(c, nameText.toUpperCase(), W - 180, 2);
+          let maxLineW = 0;
+          lines.forEach(l => maxLineW = Math.max(maxLineW, c.measureText(l).width));
+          const nameBoxW = Math.min(W - 100, Math.max(460, maxLineW + 96));
+          const nameBoxH = lines.length === 1 ? (isSquare ? 76 : 90) : (isSquare ? 124 : 146);
+          const promoCardH = isSquare ? 168 : 205;
+          const origPillH = hasOrig ? (isSquare ? 50 : 58) : 0;
+          const nameBoxY = baseBottom - promoCardH - origPillH - nameBoxH + 14;
+
+          c.save();
+          c.shadowColor = "rgba(122, 18, 66, 0.25)";
+          c.shadowBlur = 24;
+          c.shadowOffsetY = 8;
+          c.fillStyle = STORE_INFO.colors.berryDark;
+          roundRectPath(c, centerX - nameBoxW / 2, nameBoxY, nameBoxW, nameBoxH, 28);
+          c.fill();
+          c.restore();
+
+          c.fillStyle = "#FFFFFF";
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          lines.forEach((line, idx) => {
+            const yPos = nameBoxY + (nameBoxH / (lines.length + 1)) * (idx + 1);
+            c.fillText(line, centerX, yPos);
+          });
+
+          // 2. Pill "DE: R$ ..." em Rosa Pastel / Escuro
+          let curY = nameBoxY + nameBoxH - 6;
+          if (hasOrig) {
+            const origText = `DE: R$ ${origStr}`;
+            c.font = `800 ${isSquare ? 26 : 32}px "Plus Jakarta Sans", sans-serif`;
+            const ow = c.measureText(origText).width + 70;
+            c.fillStyle = "#4A1C32";
+            roundRectPath(c, centerX - ow / 2, curY, ow, origPillH, 16);
+            c.fill();
+
+            c.fillStyle = STORE_INFO.colors.pastelBg;
+            c.fillText(origText, centerX, curY + origPillH / 2);
+
+            c.strokeStyle = STORE_INFO.colors.pink;
+            c.lineWidth = 3.5;
+            c.beginPath();
+            c.moveTo(centerX - ow / 2 + 24, curY + origPillH / 2);
+            c.lineTo(centerX + ow / 2 - 24, curY + origPillH / 2);
+            c.stroke();
+
+            curY += origPillH - 8;
+          }
+
+          // 3. Bloco Branco Vibrante "POR APENAS R$ ..."
+          const promoBoxW = isSquare ? 620 : 720;
+          c.save();
+          c.shadowColor = "rgba(155, 29, 86, 0.25)";
+          c.shadowBlur = 32;
+          c.shadowOffsetY = 10;
+          c.fillStyle = "#FFFFFF";
+          roundRectPath(c, centerX - promoBoxW / 2, curY, promoBoxW, promoCardH, 36);
+          c.fill();
+          c.lineWidth = 6;
+          c.strokeStyle = STORE_INFO.colors.berry;
+          c.stroke();
+          c.restore();
+
+          c.fillStyle = STORE_INFO.colors.berryDark;
+          c.font = `800 ${isSquare ? 25 : 30}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText("POR APENAS:", centerX, curY + (isSquare ? 42 : 52));
+
+          c.fillStyle = STORE_INFO.colors.berry;
+          c.font = `800 ${isSquare ? 80 : 98}px "Plus Jakarta Sans", sans-serif`;
+          c.fillText(hasPromo ? `R$ ${promoStr}` : "CONSULTE", centerX, curY + (isSquare ? 114 : 138));
+
+          // Selo lateral verde sálvia se houver economia
+          if (percent > 0) {
+            const badgeX = centerX + promoBoxW / 2 - 25;
+            const badgeY = curY + 12;
+            c.save();
+            c.translate(badgeX, badgeY);
+            c.rotate(0.14);
+            c.fillStyle = STORE_INFO.colors.sage;
+            roundRectPath(c, -74, -28, 148, 56, 28);
+            c.fill();
+            c.fillStyle = "#FFFFFF";
+            c.font = '800 24px "Plus Jakarta Sans", sans-serif';
+            c.fillText(`-${percent}%`, 0, 2);
+            c.restore();
+          }
+
+          c.restore();
+
+        } else {
+          // LAYOUT 3: MINIMALISTA ELEGANTE (Sofisticado para perfumaria premium)
+          const panelH = isStory ? 460 : (isSquare ? 355 : 395);
+          const panelY = H - panelH;
+
+          c.save();
+          const grad = c.createLinearGradient(0, panelY - 80, 0, H);
+          grad.addColorStop(0, "rgba(255, 245, 249, 0)");
+          grad.addColorStop(0.28, "rgba(255, 245, 249, 0.90)");
+          grad.addColorStop(0.6, "rgba(253, 228, 238, 0.97)");
+          grad.addColorStop(1, "rgba(253, 228, 238, 1)");
+          c.fillStyle = grad;
+          c.fillRect(0, panelY - 80, W, panelH + 80);
+
+          // Linha decorativa fina com losango central
+          const lineY = panelY + (isSquare ? 42 : 58);
+          c.strokeStyle = "rgba(155, 29, 86, 0.35)";
+          c.lineWidth = 2;
+          c.beginPath();
+          c.moveTo(140, lineY);
+          c.lineTo(W / 2 - 22, lineY);
+          c.moveTo(W / 2 + 22, lineY);
+          c.lineTo(W - 140, lineY);
+          c.stroke();
+
+          c.fillStyle = STORE_INFO.colors.sage;
+          c.save();
+          c.translate(W / 2, lineY);
+          c.rotate(Math.PI / 4);
+          c.fillRect(-7, -7, 14, 14);
+          c.restore();
+
+          // Nome do produto refinado
+          c.fillStyle = STORE_INFO.colors.berryDark;
+          const titleSize = isSquare ? 42 : 50;
+          c.font = `700 ${titleSize}px "Plus Jakarta Sans", sans-serif`;
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          const lines = wrapTextLines(c, nameText, W - 140, 2);
+          const nameY = lineY + (lines.length === 1 ? (isSquare ? 54 : 68) : (isSquare ? 40 : 54));
+          lines.forEach((line, idx) => {
+            c.fillText(line, W / 2, nameY + idx * (titleSize + 8));
+          });
+
+          // Preços lado a lado limpos
+          const priceY = H - footerReserve - (isSquare ? 78 : 108);
+          if (hasOrig && hasPromo) {
+            const origText = `R$ ${origStr}`;
+            const promoText = `R$ ${promoStr}`;
+
+            c.font = `600 ${isSquare ? 34 : 40}px "Plus Jakarta Sans", sans-serif`;
+            const origW = c.measureText(origText).width;
+            c.font = `800 ${isSquare ? 78 : 94}px "Plus Jakarta Sans", sans-serif`;
+            const promoW = c.measureText(promoText).width;
+
+            const gap = 36;
+            const totalW = origW + gap + promoW;
+            const startX = (W - totalW) / 2;
+
+            // Original riscado
+            c.textAlign = "left";
+            c.fillStyle = "#9C6A82";
+            c.font = `600 ${isSquare ? 34 : 40}px "Plus Jakarta Sans", sans-serif`;
+            c.fillText(origText, startX, priceY + 8);
+            c.strokeStyle = STORE_INFO.colors.berry;
+            c.lineWidth = 3;
+            c.beginPath();
+            c.moveTo(startX - 4, priceY + 10);
+            c.lineTo(startX + origW + 4, priceY + 6);
+            c.stroke();
+
+            // Promocional
+            c.fillStyle = STORE_INFO.colors.berry;
+            c.font = `800 ${isSquare ? 78 : 94}px "Plus Jakarta Sans", sans-serif`;
+            c.fillText(promoText, startX + origW + gap, priceY);
+          } else {
+            c.fillStyle = STORE_INFO.colors.berry;
+            c.font = `800 ${isSquare ? 78 : 94}px "Plus Jakarta Sans", sans-serif`;
+            c.fillText(hasPromo ? `R$ ${promoStr}` : "OFERTA ESPECIAL", W / 2, priceY);
+          }
+
+          c.restore();
+        }
+      }
+
+      /**
+       * Desenha o rodapé oficial da loja (@valeskaperfumesmimos + endereço).
+       */
+      function drawStoreFooter(c, W, H) {
+        c.save();
+        const isSquare = H <= 1150;
+        const y = H - (isSquare ? 38 : 48);
+
+        const footerText = `${STORE_INFO.instagram}  •  ${STORE_INFO.address}`;
+        c.font = `700 ${isSquare ? 21 : 23}px "Plus Jakarta Sans", sans-serif`;
+        const textW = c.measureText(footerText).width;
+
+        // Pill sutil branca para legibilidade sobre ondas
+        const pillW = Math.min(W - 60, textW + 52);
+        const pillH = isSquare ? 46 : 52;
+        c.fillStyle = "rgba(255, 255, 255, 0.88)";
+        roundRectPath(c, W / 2 - pillW / 2, y - pillH / 2, pillW, pillH, 26);
+        c.fill();
+
+        c.fillStyle = STORE_INFO.colors.berryDark;
+        c.textAlign = "center";
+        c.textBaseline = "middle";
+        c.fillText(footerText, W / 2, y + 1);
+        c.restore();
+      }
+
+      /**
+       * Renderiza o estado placeholder acolhedor quando nenhuma foto foi enviada ainda.
+       */
+      function drawEmptyCanvasPlaceholder(c, W, H) {
+        const grad = c.createLinearGradient(0, 0, W, H);
+        grad.addColorStop(0, "#FFF5F9");
+        grad.addColorStop(0.55, "#FDE4EE");
+        grad.addColorStop(1, "#FBE1EC");
+        c.fillStyle = grad;
+        c.fillRect(0, 0, W, H);
+
+        drawBrandWaves(c, W, H);
+
+        const logoScale = H <= 1150 ? 0.92 : 1.1;
+        drawValeskaLogo(c, W / 2, H <= 1150 ? 28 : 54, logoScale);
+
+        // Ilustração vetorial sutil de frasco de perfume no centro
+        const cy = H * 0.48;
+        c.save();
+        c.translate(W / 2, cy);
+        c.fillStyle = "rgba(255, 255, 255, 0.78)";
+        c.beginPath();
+        c.arc(0, 0, H <= 1150 ? 155 : 210, 0, Math.PI * 2);
+        c.fill();
+
+        // Silhueta elegante de frasco
+        c.strokeStyle = "rgba(155, 29, 86, 0.25)";
+        c.fillStyle = "rgba(242, 132, 182, 0.16)";
+        c.lineWidth = 6;
+        roundRectPath(c, -70, -55, 140, 165, 26);
+        c.fill();
+        c.stroke();
+        roundRectPath(c, -26, -98, 52, 43, 10);
+        c.fill();
+        c.stroke();
+        roundRectPath(c, -40, -135, 80, 36, 12);
+        c.fillStyle = "rgba(149, 189, 153, 0.35)";
+        c.fill();
+        c.stroke();
+
+        // Texto convidativo
+        c.fillStyle = STORE_INFO.colors.berryDark;
+        c.font = '800 32px "Plus Jakarta Sans", sans-serif';
+        c.textAlign = "center";
+        c.fillText("Sua arte aparecerá aqui", 0, (H <= 1150 ? 195 : 260));
+        c.fillStyle = "#8A506B";
+        c.font = '600 24px "Plus Jakarta Sans", sans-serif';
+        c.fillText("Envie a foto do produto ao lado para começar ✨", 0, (H <= 1150 ? 235 : 304));
+        c.restore();
+
+        if (state.showTag && state.mode === "complete") {
+          const { percent } = calculateDiscount();
+          drawDiscountTag(c, W, H, percent);
+        }
+
+        if (state.mode === "complete" && (state.productName || state.promoPriceCents > 0)) {
+          drawOfferCard(
+            c, W, H,
+            state.productName,
+            formatCentsToBRL(state.originalPriceCents),
+            formatCentsToBRL(state.promoPriceCents),
+            calculateDiscount().percent
+          );
+        }
+
+        if (state.showFooter && state.mode === "complete") {
+          drawStoreFooter(c, W, H);
+        }
+      }
+
+      /**
+       * Função principal de renderização do Canvas em alta resolução.
+       */
+      async function renderCanvas() {
+        try {
+          if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+          }
+        } catch (_) {}
+
+        const spec = FORMAT_SPECS[state.format] || FORMAT_SPECS.story;
+        const W = spec.width;
+        const H = spec.height;
+
+        if (els.canvas.width !== W || els.canvas.height !== H) {
+          els.canvas.width = W;
+          els.canvas.height = H;
+        }
+        els.canvasDimensionsLabel.textContent = spec.desc;
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Escolhe qual imagem exibir
+        const activeImg = (state.usingAiImage && state.aiImgEl && !state.showOriginalCompare)
+          ? state.aiImgEl
+          : state.uploadedImgEl;
+
+        if (!activeImg) {
+          drawEmptyCanvasPlaceholder(ctx, W, H);
+          return;
+        }
+
+        const isAiActive = Boolean(state.usingAiImage && state.aiImgEl && !state.showOriginalCompare);
+
+        // 1. Desenha a Foto (IA full-bleed ou Original com moldura de estúdio)
+        drawProductImage(ctx, W, H, activeImg, isAiActive, isAiActive || state.mode === "photo_only");
+
+        // Se o usuário escolheu "Apenas melhorar a foto com IA (sem textos)", finaliza limpo aqui!
+        if (state.mode === "photo_only") {
+          return;
+        }
+
+        // 2. Gradiente superior bem suave para o logo respirar caso a foto IA seja cheia
+        if (isAiActive) {
+          const topGrad = ctx.createLinearGradient(0, 0, 0, H * 0.22);
+          topGrad.addColorStop(0, "rgba(255, 245, 249, 0.85)");
+          topGrad.addColorStop(0.65, "rgba(253, 228, 238, 0.35)");
+          topGrad.addColorStop(1, "rgba(253, 228, 238, 0)");
+          ctx.fillStyle = topGrad;
+          ctx.fillRect(0, 0, W, H * 0.22);
+        }
+
+        // 3. Ondas orgânicas da marca nos cantos
+        drawBrandWaves(ctx, W, H);
+
+        // 4. Logo Valeska Perfumes & Mimos no topo
+        const logoScale = H <= 1150 ? 0.88 : (H >= 1600 ? 1.12 : 0.96);
+        const logoTop = H <= 1150 ? 22 : (H >= 1600 ? 48 : 30);
+        drawValeskaLogo(ctx, W / 2, logoTop, logoScale);
+
+        // 5. Etiqueta inclinada de desconto (se ativada)
+        const { percent } = calculateDiscount();
+        if (state.showTag) {
+          drawDiscountTag(ctx, W, H, percent);
+        }
+
+        // 6. Card de Oferta (Nome + Preços)
+        drawOfferCard(
+          ctx,
+          W,
+          H,
+          state.productName.trim(),
+          formatCentsToBRL(state.originalPriceCents),
+          formatCentsToBRL(state.promoPriceCents),
+          percent
+        );
+
+        // 7. Rodapé da loja (se ativado)
+        if (state.showFooter) {
+          drawStoreFooter(ctx, W, H);
+        }
+      }
+
+      // =========================================================================
+      // 6. DOWNLOAD, COMPARTILHAMENTO E GALERIA DA SESSÃO
+      // =========================================================================
+      function buildFilename() {
+        const slug = (state.productName.trim() || "oferta")
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "");
+        return `valeska-${slug}-${state.format}.png`;
+      }
+
+      function downloadDataUrl(dataUrl, filename) {
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      async function handleDownloadArt() {
+        await renderCanvas();
+        const dataUrl = els.canvas.toDataURL("image/png", 1.0);
+        downloadDataUrl(dataUrl, buildFilename());
+        showToast("Arte em alta resolução baixada! 🎉", "success");
+      }
+
+      async function handleShareArt() {
+        await renderCanvas();
+        try {
+          const blob = await new Promise((resolve) => els.canvas.toBlob(resolve, "image/png", 1.0));
+          const file = new File([blob], buildFilename(), { type: "image/png" });
+          const shareText = els.captionTextarea.value.trim() ||
+            `Oferta especial na Valeska Perfumes & Mimos! ${state.productName || ""}`;
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: "Valeska Perfumes & Mimos — Oferta",
+              text: shareText,
+              files: [file]
+            });
+            showToast("Compartilhado com sucesso!", "success");
+          } else {
+            // Fallback: baixa a imagem e informa
+            const dataUrl = els.canvas.toDataURL("image/png", 1.0);
+            downloadDataUrl(dataUrl, buildFilename());
+            showToast("Imagem baixada! Agora é só anexar no Instagram ou WhatsApp.", "info");
+          }
+        } catch (err) {
+          if (err && err.name !== "AbortError") {
+            const dataUrl = els.canvas.toDataURL("image/png", 1.0);
+            downloadDataUrl(dataUrl, buildFilename());
+            showToast("Imagem baixada para compartilhar!", "info");
+          }
+        }
+      }
+
+      function saveCurrentArtToGallery(silent = false) {
+        const dataUrl = els.canvas.toDataURL("image/png", 0.92);
+        const item = {
+          id: Date.now() + Math.random().toString(16).slice(2),
+          thumbnail: dataUrl,
+          filename: buildFilename(),
+          productName: state.productName.trim() || "Oferta Valeska",
+          promoStr: formatCentsToBRL(state.promoPriceCents),
+          formatLabel: FORMAT_SPECS[state.format].label,
+          createdAt: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          snapshot: {
+            productName: state.productName,
+            originalPriceCents: state.originalPriceCents,
+            promoPriceCents: state.promoPriceCents,
+            format: state.format,
+            style: state.style,
+            mode: state.mode,
+            layout: state.layout,
+            showTag: state.showTag,
+            showFooter: state.showFooter,
+            aiImgEl: state.aiImgEl,
+            uploadedImgEl: state.uploadedImgEl,
+            usingAiImage: state.usingAiImage
+          }
+        };
+
+        state.gallery.unshift(item);
+        renderGallery();
+        if (!silent) {
+          showToast("Arte salva na galeria de hoje!", "success");
+        }
+      }
+
+      function renderGallery() {
+        const count = state.gallery.length;
+        els.galleryCountBadge.textContent = count;
+        els.galleryTotalText.textContent = count === 1 ? "1 arte" : `${count} artes`;
+
+        if (count === 0) {
+          els.galleryEmpty.classList.remove("hidden");
+          els.galleryGrid.classList.add("hidden");
+          els.galleryGrid.classList.remove("grid");
+          els.btnClearGallery.classList.add("hidden");
+          return;
+        }
+
+        els.galleryEmpty.classList.add("hidden");
+        els.galleryGrid.classList.remove("hidden");
+        els.galleryGrid.classList.add("grid");
+        els.btnClearGallery.classList.remove("hidden");
+
+        els.galleryGrid.innerHTML = "";
+        state.gallery.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "rounded-2xl border border-valeska-pastel bg-valeska-bg/50 overflow-hidden flex flex-col shadow-sm hover:shadow-rose transition";
+
+          card.innerHTML = `
+            <div class="relative aspect-[4/5] bg-valeska-pastel/50 overflow-hidden flex items-center justify-center p-2">
+              <img src="${item.thumbnail}" alt="${escapeHtml(item.productName)}" class="max-h-full max-w-full rounded-xl object-contain shadow-sm" />
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-white/90 text-valeska-berryDark text-[10px] font-bold shadow-sm">
+                ${escapeHtml(item.formatLabel)}
+              </span>
+            </div>
+            <div class="p-3 flex-1 flex flex-col justify-between gap-2 bg-white">
+              <div>
+                <p class="text-xs font-extrabold text-valeska-berryDark truncate" title="${escapeHtml(item.productName)}">${escapeHtml(item.productName)}</p>
+                <div class="flex items-center justify-between text-[11px] mt-0.5">
+                  <span class="font-extrabold text-valeska-berry">${item.promoStr ? "R$ " + item.promoStr : "Oferta"}</span>
+                  <span class="text-[#9C6A82]">${item.createdAt}</span>
+                </div>
+              </div>
+              <div class="flex gap-1.5 pt-1">
+                <button type="button" data-action="download" class="flex-1 py-1.5 px-2 rounded-xl bg-valeska-berry hover:bg-valeska-berryDark text-white text-[11px] font-bold transition cursor-pointer">
+                  Baixar
+                </button>
+                <button type="button" data-action="reopen" class="py-1.5 px-2.5 rounded-xl bg-valeska-pastel hover:bg-valeska-pink/40 text-valeska-berryDark text-[11px] font-bold transition cursor-pointer">
+                  Editar
+                </button>
+              </div>
+            </div>
+          `;
+
+          card.querySelector('[data-action="download"]').addEventListener("click", () => {
+            downloadDataUrl(item.thumbnail, item.filename);
+            showToast("Arte baixada da galeria!", "success");
+          });
+
+          card.querySelector('[data-action="reopen"]').addEventListener("click", () => {
+            restoreFromSnapshot(item.snapshot);
+            els.previewSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            showToast("Arte carregada no editor para ajustes!", "info");
+          });
+
+          els.galleryGrid.appendChild(card);
+        });
+      }
+
+      function restoreFromSnapshot(snap) {
+        state.productName = snap.productName;
+        state.originalPriceCents = snap.originalPriceCents;
+        state.promoPriceCents = snap.promoPriceCents;
+        state.format = snap.format;
+        state.style = snap.style;
+        state.mode = snap.mode;
+        state.layout = snap.layout;
+        state.showTag = snap.showTag;
+        state.showFooter = snap.showFooter;
+        state.aiImgEl = snap.aiImgEl;
+        state.uploadedImgEl = snap.uploadedImgEl;
+        state.usingAiImage = snap.usingAiImage;
+        state.showOriginalCompare = false;
+
+        // Sincronizar campos do formulário
+        els.inputProductName.value = state.productName;
+        els.inputOriginalPrice.value = formatCentsToBRL(state.originalPriceCents);
+        els.inputPromoPrice.value = formatCentsToBRL(state.promoPriceCents);
+        els.toggleTag.checked = state.showTag;
+        els.toggleFooter.checked = state.showFooter;
+        updateDiscountUI();
+        syncSelectorButtons();
+
+        if (state.usingAiImage && state.aiImgEl) {
+          els.aiBadgeStatus.classList.remove("hidden");
+          els.btnToggleCompare.classList.remove("hidden");
+        } else {
+          els.aiBadgeStatus.classList.add("hidden");
+          els.btnToggleCompare.classList.add("hidden");
+        }
+        renderCanvas();
+      }
+
+      // =========================================================================
+      // 7. EVENTOS E INTERAÇÕES DA INTERFACE
+      // =========================================================================
+      function syncSelectorButtons() {
+        // Formatos
+        document.querySelectorAll(".format-btn").forEach((btn) => {
+          const active = btn.dataset.format === state.format;
+          btn.className = active
+            ? "format-btn active flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-valeska-berry bg-valeska-pastel/60 text-valeska-berryDark transition cursor-pointer"
+            : "format-btn flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/50 hover:border-valeska-pink text-[#78465E] transition cursor-pointer";
+        });
+
+        // Estilos IA
+        document.querySelectorAll(".style-card").forEach((card) => {
+          const active = card.dataset.style === state.style;
+          card.className = active
+            ? "style-card active text-left p-3 rounded-2xl border-2 border-valeska-berry bg-valeska-pastel/50 transition cursor-pointer relative overflow-hidden"
+            : "style-card text-left p-3 rounded-2xl border-2 border-valeska-pastel bg-valeska-bg/40 hover:border-valeska-pink transition cursor-pointer relative overflow-hidden";
+        });
+
+        // Modo (Completa vs Só Foto IA)
+        document.querySelectorAll(".mode-btn").forEach((btn) => {
+          const active = btn.dataset.mode === state.mode;
+          btn.className = active
+            ? "mode-btn active py-2 px-2.5 rounded-xl text-xs font-bold bg-valeska-berry text-white shadow-sm transition cursor-pointer"
+            : "mode-btn py-2 px-2.5 rounded-xl text-xs font-bold text-[#78465E] hover:text-valeska-berryDark transition cursor-pointer";
+        });
+
+        // Layouts pós-geração
+        document.querySelectorAll(".layout-btn").forEach((btn) => {
+          const active = btn.dataset.layout === state.layout;
+          btn.className = active
+            ? "layout-btn active px-3 py-2 rounded-xl text-[11px] font-bold bg-valeska-berry text-white shadow-sm transition cursor-pointer"
+            : "layout-btn px-3 py-2 rounded-xl text-[11px] font-bold bg-valeska-bg text-[#78465E] border border-valeska-pastel hover:border-valeska-pink transition cursor-pointer";
+        });
+      }
+
+      // Upload / Câmera / Drag & Drop
+      els.btnPickGallery.addEventListener("click", (e) => {
+        e.stopPropagation();
+        els.fileInput.click();
+      });
+      els.btnOpenCamera.addEventListener("click", (e) => {
+        e.stopPropagation();
+        els.cameraInput.click();
+      });
+      els.dropzone.addEventListener("click", () => {
+        if (!state.uploadedImgEl) els.fileInput.click();
+      });
+      els.btnRemovePhoto.addEventListener("click", (e) => {
+        e.stopPropagation();
+        els.fileInput.value = "";
+        els.cameraInput.value = "";
+        els.fileInput.click();
+      });
+
+      els.fileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) processUploadedFile(e.target.files[0]);
+      });
+      els.cameraInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) processUploadedFile(e.target.files[0]);
+      });
+
+      els.dropzone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        els.dropzone.classList.add("border-valeska-berry", "bg-valeska-pastel/70");
+      });
+      els.dropzone.addEventListener("dragleave", () => {
+        els.dropzone.classList.remove("border-valeska-berry", "bg-valeska-pastel/70");
+      });
+      els.dropzone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        els.dropzone.classList.remove("border-valeska-berry", "bg-valeska-pastel/70");
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          processUploadedFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Inputs de Texto e Máscara de Moeda Brasileira em Tempo Real
+      els.inputProductName.addEventListener("input", (e) => {
+        state.productName = e.target.value;
+        renderCanvas();
+      });
+
+      els.inputOriginalPrice.addEventListener("input", (e) => {
+        const cents = parsePriceInputToCents(e.target.value);
+        state.originalPriceCents = cents;
+        e.target.value = formatCentsToBRL(cents);
+        updateDiscountUI();
+        renderCanvas();
+      });
+
+      els.inputPromoPrice.addEventListener("input", (e) => {
+        const cents = parsePriceInputToCents(e.target.value);
+        state.promoPriceCents = cents;
+        e.target.value = formatCentsToBRL(cents);
+        updateDiscountUI();
+        renderCanvas();
+      });
+
+      // Seletores (Formato, Estilo, Modo, Layout)
+      document.querySelectorAll(".format-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.format = btn.dataset.format;
+          syncSelectorButtons();
+          renderCanvas();
+        });
+      });
+
+      document.querySelectorAll(".style-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          state.style = card.dataset.style;
+          syncSelectorButtons();
+        });
+      });
+
+      document.querySelectorAll(".mode-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.mode = btn.dataset.mode;
+          syncSelectorButtons();
+          renderCanvas();
+        });
+      });
+
+      document.querySelectorAll(".layout-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.layout = btn.dataset.layout;
+          syncSelectorButtons();
+          renderCanvas();
+        });
+      });
+
+      // Toggles
+      els.toggleTag.addEventListener("change", (e) => {
+        state.showTag = e.target.checked;
+        renderCanvas();
+      });
+      els.toggleFooter.addEventListener("change", (e) => {
+        state.showFooter = e.target.checked;
+        renderCanvas();
+      });
+
+      // Controles de enquadramento (Zoom / Posição Vertical)
+      els.rangeOffsetY.addEventListener("input", (e) => {
+        state.offsetY = parseInt(e.target.value, 10);
+        els.offsetYVal.textContent = `${state.offsetY > 0 ? "+" : ""}${state.offsetY}%`;
+        renderCanvas();
+      });
+      els.rangeZoom.addEventListener("input", (e) => {
+        state.zoom = parseInt(e.target.value, 10);
+        els.zoomVal.textContent = `${state.zoom}%`;
+        renderCanvas();
+      });
+
+      // Botões de Geração IA e Fallback
+      els.btnGenerateAI.addEventListener("click", generateStudioImageWithAI);
+      els.btnRetryAI.addEventListener("click", generateStudioImageWithAI);
+
+      function applyOriginalPhotoFallback() {
+        if (!state.uploadedImgEl) {
+          showToast("Envie uma foto do produto primeiro!", "error");
+          return;
+        }
+        state.usingAiImage = false;
+        state.showOriginalCompare = false;
+        els.aiErrorOverlay.classList.add("hidden");
+        els.aiBadgeStatus.classList.add("hidden");
+        renderCanvas();
+        if (window.innerWidth < 1024) {
+          els.previewSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        showToast("Arte montada com a foto original e moldura Valeska!", "success");
+      }
+
+      els.btnFallbackOriginal.addEventListener("click", applyOriginalPhotoFallback);
+      els.btnUseOriginalDirect.addEventListener("click", applyOriginalPhotoFallback);
+
+      // Comparar Foto Original vs IA
+      els.btnToggleCompare.addEventListener("click", () => {
+        state.showOriginalCompare = !state.showOriginalCompare;
+        els.btnToggleCompare.textContent = state.showOriginalCompare ? "Voltar para foto IA ✨" : "Ver foto original";
+        renderCanvas();
+      });
+
+      // Botão Exemplo Rápido (Malbec)
+      els.btnFillDemo.addEventListener("click", () => {
+        state.productName = "Malbec Tradicional 100ml";
+        state.originalPriceCents = 21990;
+        state.promoPriceCents = 14990;
+        els.inputProductName.value = state.productName;
+        els.inputOriginalPrice.value = formatCentsToBRL(state.originalPriceCents);
+        els.inputPromoPrice.value = formatCentsToBRL(state.promoPriceCents);
+        updateDiscountUI();
+        renderCanvas();
+        showToast("Exemplo preenchido! Agora envie uma foto do perfume.", "info");
+      });
+
+      // Download, Compartilhar e Salvar na Galeria
+      els.btnDownloadPng.addEventListener("click", handleDownloadArt);
+      els.btnShareArt.addEventListener("click", handleShareArt);
+      els.btnSaveGallery.addEventListener("click", () => saveCurrentArtToGallery(false));
+
+      // Legenda com IA e Cópia Segura via document.execCommand('copy')
+      els.btnGenerateCaption.addEventListener("click", () => generateCaptionWithAI(false));
+
+      els.btnCopyCaption.addEventListener("click", () => {
+        const text = els.captionTextarea.value.trim();
+        if (!text) {
+          showToast("Gere ou digite uma legenda antes de copiar.", "info");
+          return;
+        }
+        els.captionTextarea.select();
+        els.captionTextarea.setSelectionRange(0, 99999);
+        try {
+          document.execCommand("copy");
+          showToast("Legenda copiada! É só colar no Instagram ou WhatsApp 💖", "success");
+        } catch (err) {
+          showToast("Selecione o texto e copie manualmente.", "error");
+        }
+      });
+
+      // Limpar Galeria (sem usar confirm)
+      els.btnClearGallery.addEventListener("click", () => {
+        state.gallery = [];
+        renderGallery();
+        showToast("Galeria de hoje limpa.", "info");
+      });
+
+      // =========================================================================
+      // 8. INICIALIZAÇÃO
+      // =========================================================================
+      window.addEventListener("load", () => {
+        syncSelectorButtons();
+        updateDiscountUI();
+        renderCanvas();
+      });
+    })();
+  </script>
+</body>
+</html>
+```
